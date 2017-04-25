@@ -3,7 +3,7 @@
 - PostgreSQL Logical Replication client for node.js
 
 ## 1. Install
-- **pg-logical-replication** depends on [pq (node-postgres)](https://github.com/brianc/node-postgres).
+- **pg-logical-replication** depends on [pq (node-postgres)](https://github.com/brianc/node-postgres) >= 6.2.0
 
 ```sh
 $ npm install pg-logical-replication

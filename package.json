@@ -21,10 +21,10 @@
   "author": "Kibae Shin <nonunnet@gmail.com>",
   "main": "./index",
   "dependencies": {
-	"pg": "6.1.5"
+	"pg": "6.2.0"
   },
   "devDependencies": {
-	"pg": "6.1.5"
+	"pg": "6.2.0"
   },
   "license": "MIT",
   "engines": {
