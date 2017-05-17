@@ -3,7 +3,7 @@
 - PostgreSQL Logical Replication client for node.js
 
 ## 1. Install
-- **pg-logical-replication** depends on [pq (node-postgres)](https://github.com/brianc/node-postgres) >= 6.2.0
+- **pg-logical-replication** depends on [pq (node-postgres)](https://github.com/brianc/node-postgres) >= 6.2.2
 
 ```sh
 $ npm install pg-logical-replication
@@ -44,7 +44,7 @@ stream.stop();
 ```javascript
 stream.on('data', (/*object*/ msg)=>{/*...*/});
 ```
-- ```msg``` contains ```lsn (string)```, ```log (buffer)``` 
+- ```msg``` contains ```lsn (string)```, ```log (buffer)```
 
 ### 3-4. Event - Stream.on('error')
 - Raised when error or disconnected.
