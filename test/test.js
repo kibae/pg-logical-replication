@@ -4,7 +4,7 @@
  * 2. Launch nodejs with this file : node test.js
  * 3. Modify data of database
  */
-var LogicalReplication = require('../index.js'); //TODO: replace
+var LogicalReplication = require('../index.js'); //TODO: replace to 'pg-logical-replication'
 var PluginTestDecoding = LogicalReplication.LoadPlugin('output/test_decoding');
 
 //Connection parameter : https://github.com/brianc/node-postgres/wiki/Client#parameters
