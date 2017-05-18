@@ -1,6 +1,6 @@
 {
   "name": "pg-logical-replication",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "keywords": [
   	"postgres",
