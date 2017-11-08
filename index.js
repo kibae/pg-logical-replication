@@ -49,7 +49,6 @@ var LogicalReplication = function(config) {
 			var opts = [
 				'"include-xids" \'' + (option.includeXids === true ? 'on' : 'off') + '\'',
 				'"include-timestamp" \'' + (option.includeTimestamp === true ? 'on' : 'off') + '\'',
-				'"skip-empty-xacts" \'' + (option.skipEmptyXacts !== false ? 'on' : 'off') + '\'',
 			];
 			sql += ' (' + (opts.join(' , ')) + ')';
 
@@ -67,15 +66,42 @@ var LogicalReplication = function(config) {
 				//start
 				self.emit('start', self);
 				client.connection.on('copyData', function(msg) {
-					if (msg.chunk[0] != 0x77) {
-						return;
-					}
+					if (msg.chunk[0] == 0x77) { // XLogData
+						var lsn = (msg.chunk.readUInt32BE(1).toString(16).toUpperCase()) + '/' + (msg.chunk.readUInt32BE(5).toString(16).toUpperCase());
+						self.emit('data', {
+							lsn: lsn,
+							log: msg.chunk.slice(25),
+						});
+					} else if (msg.chunk[0] == 0x6b) { // Heartbeat
+						let upper = msg.chunk.readUInt32BE(1)
+						let lower = msg.chunk.readUInt32BE(5)
+						let timestamp = Math.floor(msg.chunk.readUInt32BE(9) * 4294967.296 + msg.chunk.readUInt32BE(13) / 1000 + 946080000000)
 
-					var lsn = (msg.chunk.readUInt32BE(1).toString(16).toUpperCase()) + '/' + (msg.chunk.readUInt32BE(5).toString(16).toUpperCase());
-					self.emit('data', {
-						lsn: lsn,
-						log: msg.chunk.slice(25),
-					});
+						if (lower === 4294967295) { // [0xff, 0xff, 0xff, 0xff]
+							upper = upper + 1
+						} else {
+							lower = lower + 1
+						}
+
+						let response = Buffer.alloc(34)
+						response.fill(0x72) // 'r'
+
+						response.writeUInt32BE(upper, 1)
+						response.writeUInt32BE(lower, 5)
+
+						response.writeUInt32BE(upper, 9)
+						response.writeUInt32BE(lower, 13)
+
+						response.writeUInt32BE(upper, 17)
+						response.writeUInt32BE(lower, 21)
+
+						response.writeUInt32BE(upper, 25)
+						response.writeUInt32BE(lower, 29)
+						response.writeInt8(0, 33)
+
+						console.log('Response', response, msg.chunk.readUInt32BE(1))
+						client.connection.sendCopyFromChunk(response)
+					}
 				});
 			});
 		});
