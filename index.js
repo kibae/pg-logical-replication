@@ -9,6 +9,44 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var pg = require('pg');
 
+function standbyStatusUpdate(client, upperWAL, lowerWAL, msg = 'nothing') {
+	// Timestamp as microseconds since midnight 2000-01-01
+	var now = (Date.now() - 946080000000)
+	var upperTimestamp = Math.floor(now / 4294967.296)
+	var lowerTimestamp = Math.floor((now - upperTimestamp * 4294967.296))
+
+	if (lowerWAL === 4294967295) { // [0xff, 0xff, 0xff, 0xff]
+		upperWAL = upperWAL + 1
+		lowerWAL = 0
+	} else {
+		lowerWAL = lowerWAL + 1
+	}
+
+	var response = Buffer.alloc(34)
+	response.fill(0x72) // 'r'
+
+	// Last WAL Byte + 1 received and written to disk locally
+	response.writeUInt32BE(upperWAL, 1)
+	response.writeUInt32BE(lowerWAL, 5)
+
+	// Last WAL Byte + 1 flushed to disk in the standby
+	response.writeUInt32BE(upperWAL, 9)
+	response.writeUInt32BE(lowerWAL, 13)
+
+	// Last WAL Byte + 1 applied in the standby
+	response.writeUInt32BE(upperWAL, 17)
+	response.writeUInt32BE(lowerWAL, 21)
+
+	// Timestamp as microseconds since midnight 2000-01-01
+	response.writeUInt32BE(upperTimestamp, 25)
+	response.writeUInt32BE(lowerTimestamp, 29)
+
+	// If 1, requests server to respond immediately - can be used to verify connectivity
+	response.writeInt8(0, 33)
+
+	client.connection.sendCopyFromChunk(response)
+}
+
 var LogicalReplication = function(config) {
 	EventEmitter.call(this);
 	var self = this;
@@ -29,7 +67,6 @@ var LogicalReplication = function(config) {
 		/*
 		 * includeXids : include xid on BEGIN and COMMIT, default false
 		 * includeTimestamp : include timestamp on COMMIT, default false
-		 * skipEmptyXacts : skip empty transaction like DDL, default true
 		 */
 		stoped = false;
 		client = new pg.Client(config);
@@ -69,40 +106,30 @@ var LogicalReplication = function(config) {
 					if (msg.chunk[0] == 0x77) { // XLogData
 						var lsn = (msg.chunk.readUInt32BE(1).toString(16).toUpperCase()) + '/' + (msg.chunk.readUInt32BE(5).toString(16).toUpperCase());
 						self.emit('data', {
-							lsn: lsn,
+							lsn,
 							log: msg.chunk.slice(25),
 						});
-					} else if (msg.chunk[0] == 0x6b) { // Heartbeat
-						let upper = msg.chunk.readUInt32BE(1)
-						let lower = msg.chunk.readUInt32BE(5)
-						let timestamp = Math.floor(msg.chunk.readUInt32BE(9) * 4294967.296 + msg.chunk.readUInt32BE(13) / 1000 + 946080000000)
-
-						if (lower === 4294967295) { // [0xff, 0xff, 0xff, 0xff]
-							upper = upper + 1
-						} else {
-							lower = lower + 1
-						}
-
-						let response = Buffer.alloc(34)
-						response.fill(0x72) // 'r'
-
-						response.writeUInt32BE(upper, 1)
-						response.writeUInt32BE(lower, 5)
-
-						response.writeUInt32BE(upper, 9)
-						response.writeUInt32BE(lower, 13)
-
-						response.writeUInt32BE(upper, 17)
-						response.writeUInt32BE(lower, 21)
-
-						response.writeUInt32BE(upper, 25)
-						response.writeUInt32BE(lower, 29)
-						response.writeInt8(0, 33)
-
-						console.log('Response', response, msg.chunk.readUInt32BE(1))
-						client.connection.sendCopyFromChunk(response)
+					} else if (msg.chunk[0] == 0x6b) { // Primary keepalive message
+						var lsn = (msg.chunk.readUInt32BE(1).toString(16).toUpperCase()) + '/' + (msg.chunk.readUInt32BE(5).toString(16).toUpperCase());
+						var timestamp = Math.floor(msg.chunk.readUInt32BE(9) * 4294967.296 + msg.chunk.readUInt32BE(13) / 1000 + 946080000000)
+						var shouldRespond = msg.chunk.readInt8(17)
+						self.emit('heartbeat', {
+							lsn,
+							timestamp,
+							shouldRespond
+						});
+					} else {
+						console.log('Unknown message', msg.chunk[0])
 					}
+
 				});
+
+				self.on('acknowledge', function(msg) {
+					var lsn = msg.lsn.split('/')
+					upperWALCheckpoint = lsn[0]
+					lowerWALCheckpoint = lsn[1]
+					standbyStatusUpdate(client, parseInt(lsn[0], 16), parseInt(lsn[1], 16), 'acknowledge')
+				})
 			});
 		});
 		return self;
