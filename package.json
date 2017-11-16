@@ -1,6 +1,6 @@
 {
   "name": "pg-logical-replication",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "keywords": [
   	"postgres",
@@ -19,7 +19,10 @@
   	"type": "git",
   	"url": "git://github.com/kibae/pg-logical-replication.git"
   },
-  "author": "Kibae Shin <nonunnet@gmail.com>",
+  "author": {"name":"Kibae Shin", "email":"kibae.shin@gmail.com", "url":"https://github.com/kibae"},
+  "contributors": [
+    {"name":"Jón Tómas Grétarsson", "email":"jon.gretarsson@gmail.com", "url":"https://github.com/jontg"}
+  ],
   "main": "./index",
   "dependencies": {
 	   "pg": "6.2.2"

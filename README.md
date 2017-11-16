@@ -31,7 +31,6 @@ stream.getChanges( /*string*/ slotName, /*string*/ uptoLsn, /*object*/ option, /
 - ```option``` can contain any of the following optional properties
     - ```includeXids``` : bool (default: false)
     - ```includeTimestamp``` : bool (default: false)
-    - ```skipEmptyXacts``` : bool (default: true)
 
 ### 3-2. Method - Stream.stop
 - Stop WAL streaming.
@@ -100,7 +99,6 @@ var stream = (new LogicalReplication(connInfo))
 	stream.getChanges('test_slot', lastLsn, {
 		includeXids: false, //default: false
 		includeTimestamp: false, //default: false
-		skipEmptyXacts: true, //default: true
 	}, function(err) {
 		if (err) {
 			console.trace('Logical replication initialize error', err);
@@ -111,6 +109,12 @@ var stream = (new LogicalReplication(connInfo))
 ```
 
 ## PostgreSQL side
+- postgresql.conf
+```
+wal_level = logical
+max_wal_senders = [bigger than 1]
+max_replication_slots = [bigger than 1]
+```
 - Create logical replication slot
 ```sql
 SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');

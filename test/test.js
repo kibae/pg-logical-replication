@@ -7,7 +7,7 @@
 var LogicalReplication = require('../index.js'); //TODO: replace to 'pg-logical-replication'
 var PluginTestDecoding = LogicalReplication.LoadPlugin('output/test_decoding');
 
-//Connection parameter : https://github.com/brianc/node-postgres/wiki/Client#parameters
+//Connection parameter : https://node-postgres.com/features/connecting
 var connInfo = {};
 
 //Initialize with last LSN value
@@ -29,15 +29,15 @@ var stream = (new LogicalReplication(connInfo))
 		setTimeout(proc, 1000);
 	});
 
-(function proc() {
+function proc() {
 	stream.getChanges('test_slot', lastLsn, {
 		includeXids: false, //default: false
 		includeTimestamp: false, //default: false
-		skipEmptyXacts: true, //default: true
 	}, function(err) {
 		if (err) {
 			console.trace('Logical replication initialize error', err);
 			setTimeout(proc, 1000);
 		}
 	});
-})();
+};
+proc();
