@@ -87,7 +87,6 @@ var stream = (new LogicalReplication(connInfo))
 		try {
 			console.log(PluginTestDecoding.parse(log));
 			//TODO: DO SOMETHING. eg) replicate to other dbms(pgsql, mysql, ...)
-			stream.emit('acknowledge', { lsn: lastLsn })
 		} catch (e) {
 			console.trace(log, e);
 		}
@@ -103,7 +102,6 @@ var stream = (new LogicalReplication(connInfo))
 	}, function(err) {
 		if (err) {
 			console.trace('Logical replication initialize error', err);
-			stream.removeAllListeners('acknowledge')
 			setTimeout(proc, 1000);
 		}
 	});

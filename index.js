@@ -11,40 +11,40 @@ var pg = require('pg');
 
 function standbyStatusUpdate(client, upperWAL, lowerWAL, msg = 'nothing') {
 	// Timestamp as microseconds since midnight 2000-01-01
-	var now = (Date.now() - 946080000000)
-	var upperTimestamp = Math.floor(now / 4294967.296)
-	var lowerTimestamp = Math.floor((now - upperTimestamp * 4294967.296))
+	var now = (Date.now() - 946080000000);
+	var upperTimestamp = Math.floor(now / 4294967.296);
+	var lowerTimestamp = Math.floor((now - upperTimestamp * 4294967.296));
 
 	if (lowerWAL === 4294967295) { // [0xff, 0xff, 0xff, 0xff]
-		upperWAL = upperWAL + 1
-		lowerWAL = 0
+		upperWAL = upperWAL + 1;
+		lowerWAL = 0;
 	} else {
-		lowerWAL = lowerWAL + 1
+		lowerWAL = lowerWAL + 1;
 	}
 
-	var response = Buffer.alloc(34)
-	response.fill(0x72) // 'r'
+	var response = Buffer.alloc(34);
+	response.fill(0x72); // 'r'
 
 	// Last WAL Byte + 1 received and written to disk locally
-	response.writeUInt32BE(upperWAL, 1)
-	response.writeUInt32BE(lowerWAL, 5)
+	response.writeUInt32BE(upperWAL, 1);
+	response.writeUInt32BE(lowerWAL, 5);
 
 	// Last WAL Byte + 1 flushed to disk in the standby
-	response.writeUInt32BE(upperWAL, 9)
-	response.writeUInt32BE(lowerWAL, 13)
+	response.writeUInt32BE(upperWAL, 9);
+	response.writeUInt32BE(lowerWAL, 13);
 
 	// Last WAL Byte + 1 applied in the standby
-	response.writeUInt32BE(upperWAL, 17)
-	response.writeUInt32BE(lowerWAL, 21)
+	response.writeUInt32BE(upperWAL, 17);
+	response.writeUInt32BE(lowerWAL, 21);
 
 	// Timestamp as microseconds since midnight 2000-01-01
-	response.writeUInt32BE(upperTimestamp, 25)
-	response.writeUInt32BE(lowerTimestamp, 29)
+	response.writeUInt32BE(upperTimestamp, 25);
+	response.writeUInt32BE(lowerTimestamp, 29);
 
 	// If 1, requests server to respond immediately - can be used to verify connectivity
-	response.writeInt8(0, 33)
+	response.writeInt8(0, 33);
 
-	client.connection.sendCopyFromChunk(response)
+	client.connection.sendCopyFromChunk(response);
 }
 
 var LogicalReplication = function(config) {
@@ -99,6 +99,7 @@ var LogicalReplication = function(config) {
 				cb = null;
 			});
 
+			self.removeListener('acknowledge', onAcknowledge);
 			client.connection.once('replicationStart', function() {
 				//start
 				self.emit('start', self);
@@ -109,31 +110,31 @@ var LogicalReplication = function(config) {
 							lsn,
 							log: msg.chunk.slice(25),
 						});
+						self.emit('acknowledge', { lsn });
 					} else if (msg.chunk[0] == 0x6b) { // Primary keepalive message
 						var lsn = (msg.chunk.readUInt32BE(1).toString(16).toUpperCase()) + '/' + (msg.chunk.readUInt32BE(5).toString(16).toUpperCase());
-						var timestamp = Math.floor(msg.chunk.readUInt32BE(9) * 4294967.296 + msg.chunk.readUInt32BE(13) / 1000 + 946080000000)
-						var shouldRespond = msg.chunk.readInt8(17)
+						var timestamp = Math.floor(msg.chunk.readUInt32BE(9) * 4294967.296 + msg.chunk.readUInt32BE(13) / 1000 + 946080000000);
+						var shouldRespond = msg.chunk.readInt8(17);
 						self.emit('heartbeat', {
 							lsn,
 							timestamp,
 							shouldRespond
 						});
 					} else {
-						console.log('Unknown message', msg.chunk[0])
+						console.log('Unknown message', msg.chunk[0]);
 					}
-
 				});
 
-				self.on('acknowledge', function(msg) {
-					var lsn = msg.lsn.split('/')
-					upperWALCheckpoint = lsn[0]
-					lowerWALCheckpoint = lsn[1]
-					standbyStatusUpdate(client, parseInt(lsn[0], 16), parseInt(lsn[1], 16), 'acknowledge')
-				})
+				self.on('acknowledge', onAcknowledge);
 			});
 		});
 		return self;
 	};
+
+	function onAcknowledge(msg) {
+		var lsn = msg.lsn.split('/');
+		standbyStatusUpdate(client, parseInt(lsn[0], 16), parseInt(lsn[1], 16), 'acknowledge');
+	}
 
 	this.stop = function() {
 		stoped = true;
