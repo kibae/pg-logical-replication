@@ -87,6 +87,19 @@ var LogicalReplication = function(config) {
 				'"include-xids" \'' + (option.includeXids === true ? 'on' : 'off') + '\'',
 				'"include-timestamp" \'' + (option.includeTimestamp === true ? 'on' : 'off') + '\'',
 			];
+
+			if (option.queryOptions) {
+				Object.keys(option.queryOptions).forEach(key => {
+					var value = option.queryOptions[key];
+					if (typeof value === 'boolean') {
+						value = value === true ? 'on' : 'off';
+					}
+					opts.push(
+						`"${key}" '${value}'`
+					)
+				})
+			}
+
 			sql += ' (' + (opts.join(' , ')) + ')';
 
 			client.query(sql, function(err) {

@@ -31,6 +31,9 @@ stream.getChanges( /*string*/ slotName, /*string*/ uptoLsn, /*object*/ option, /
 - ```option``` can contain any of the following optional properties
     - ```includeXids``` : bool (default: false)
     - ```includeTimestamp``` : bool (default: false)
+	- ```queryOptions``` : object containing decoder specific options (optional)
+		- ```'include-types': false```
+		- ```'filter-tables': 'foo.bar'```
 
 ### 3-2. Method - Stream.stop
 - Stop WAL streaming.
