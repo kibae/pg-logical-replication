@@ -56,6 +56,10 @@ var LogicalReplication = function(config) {
 
 	var client;
 	var stoped = false;
+	var lastLsn;
+	var lastStatus = 0;
+	var feedbackCheckInterval;
+	var standbyMessageTimeout;
 
 	this.getChanges = function(slotName, uptoLsn, option, cb /*(start_err)*/) {
 		if (client) {
@@ -64,6 +68,9 @@ var LogicalReplication = function(config) {
 			client = null;
 		}
 		option = option || {};
+
+		standbyMessageTimeout = (typeof option.standbyMessageTimeout === 'undefined') ? 10 : option.standbyMessageTimeout;
+
 		/*
 		 * includeXids : include xid on BEGIN and COMMIT, default false
 		 * includeTimestamp : include timestamp on COMMIT, default false
@@ -124,6 +131,7 @@ var LogicalReplication = function(config) {
 							log: msg.chunk.slice(25),
 						});
 						self.emit('acknowledge', { lsn });
+						lastLsn = lsn;
 					} else if (msg.chunk[0] == 0x6b) { // Primary keepalive message
 						var lsn = (msg.chunk.readUInt32BE(1).toString(16).toUpperCase()) + '/' + (msg.chunk.readUInt32BE(5).toString(16).toUpperCase());
 						var timestamp = Math.floor(msg.chunk.readUInt32BE(9) * 4294967.296 + msg.chunk.readUInt32BE(13) / 1000 + 946080000000);
@@ -133,12 +141,14 @@ var LogicalReplication = function(config) {
 							timestamp,
 							shouldRespond
 						});
+						lastLsn = lsn;
 					} else {
 						console.log('Unknown message', msg.chunk[0]);
 					}
 				});
 
 				self.on('acknowledge', onAcknowledge);
+				startStandbyTimeoutCheck();
 			});
 		});
 		return self;
@@ -147,10 +157,44 @@ var LogicalReplication = function(config) {
 	function onAcknowledge(msg) {
 		var lsn = msg.lsn.split('/');
 		standbyStatusUpdate(client, parseInt(lsn[0], 16), parseInt(lsn[1], 16), 'acknowledge');
+		updateLastStatus();
+	}
+
+	function startStandbyTimeoutCheck() {
+		if (standbyMessageTimeout <= 0) {
+			return;
+		}
+
+		feedbackCheckInterval = setInterval(function () {
+			if ((Date.now() - lastStatus) > standbyMessageTimeout * 1000) {
+				sendFeedback();
+			}
+		}, 1000);
+	}
+
+	function stopStandbyTimeoutCheck() {
+		clearInterval(feedbackCheckInterval);
+	}
+
+	function updateLastStatus() {
+		lastStatus = Date.now();
+	}
+
+	function sendFeedback() {
+		if (!lastLsn) {
+			return;
+		}
+
+		var lsn = lastLsn.split('/');
+		if (!stoped && client) {
+			standbyStatusUpdate(client, parseInt(lsn[0], 16), parseInt(lsn[1], 16), 'feedback');
+			updateLastStatus();
+		}
 	}
 
 	this.stop = function() {
 		stoped = true;
+		stopStandbyTimeoutCheck();
 		if (client) {
 			client.removeAllListeners();
 			client.end();

@@ -29,6 +29,7 @@ stream.getChanges( /*string*/ slotName, /*string*/ uptoLsn, /*object*/ option, /
 ```
 - ```uptoLsn``` can be null, the minimum value is "0/00000000".
 - ```option``` can contain any of the following optional properties
+	- ```standbyMessageTimeout``` : maximum seconds between keepalive messages (default: 10) 
     - ```includeXids``` : bool (default: false)
     - ```includeTimestamp``` : bool (default: false)
 	- ```queryOptions``` : object containing decoder specific options (optional)
