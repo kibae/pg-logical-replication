@@ -1,35 +1,52 @@
 {
   "name": "pg-logical-replication",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "keywords": [
-  	"postgres",
-  	"postgresql",
-  	"pg",
-  	"libpq",
-  	"postgre",
-  	"database",
-  	"rdbms",
-  	"replication",
-  	"logical",
-  	"logical-replication"
+    "postgres",
+    "postgresql",
+    "pg",
+    "libpq",
+    "postgre",
+    "database",
+    "rdbms",
+    "replication",
+    "logical",
+    "logical-replication"
   ],
   "homepage": "http://github.com/kibae/pg-logical-replication",
   "repository": {
-  	"type": "git",
-  	"url": "git://github.com/kibae/pg-logical-replication.git"
+    "type": "git",
+    "url": "git://github.com/kibae/pg-logical-replication.git"
   },
-  "author": {"name":"Kibae Shin", "email":"kibae.shin@gmail.com", "url":"https://github.com/kibae"},
+  "author": {
+    "name": "Kibae Shin",
+    "email": "kibae.shin@gmail.com",
+    "url": "https://github.com/kibae"
+  },
   "contributors": [
-    {"name":"Jón Tómas Grétarsson", "email":"jon.gretarsson@gmail.com", "url":"https://github.com/jontg"},
-    {"name":"Jaryl Sim", "email":"jaryl@tinkerbox.com.sg", "url":"https://github.com/jaryl"}
+    {
+      "name": "Jón Tómas Grétarsson",
+      "email": "jon.gretarsson@gmail.com",
+      "url": "https://github.com/jontg"
+    },
+    {
+      "name": "Jaryl Sim",
+      "email": "jaryl@tinkerbox.com.sg",
+      "url": "https://github.com/jaryl"
+    },
+    {
+      "name": "Caleb",
+      "email": "caleb.bertsch@gmail.com",
+      "url": "https://github.com/c4l3b"
+    }
   ],
   "main": "./index",
   "dependencies": {
-	   "pg": "^6.2.2"
+    "pg": "^6.2.2"
   },
   "license": "MIT",
   "engines": {
-	   "node": ">= 0.8.0"
+    "node": ">= 0.8.0"
   }
 }
