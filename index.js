@@ -67,7 +67,7 @@ var LogicalReplication = function(config) {
 			client.end();
 			client = null;
 		}
-		option = incomingOption || {};
+		option = option || {};
 
 		standbyMessageTimeout = (typeof option.standbyMessageTimeout === 'undefined') ? 10 : option.standbyMessageTimeout;
 
@@ -91,24 +91,21 @@ var LogicalReplication = function(config) {
 
 			var sql = 'START_REPLICATION SLOT ' + slotName + ' LOGICAL ' + (uptoLsn ? uptoLsn : '0/00000000');
 
-			if (incomingOption !== undefined) {
-				var opts = [
-					'"include-xids" \'' + (option.includeXids === true ? 'on' : 'off') + '\'',
-					'"include-timestamp" \'' + (option.includeTimestamp === true ? 'on' : 'off') + '\'',
-				];
+			var opts = [];
 
-				if (option.queryOptions) {
-					Object.keys(option.queryOptions).forEach(key => {
-						var value = option.queryOptions[key];
-						if (typeof value === 'boolean') {
-							value = value === true ? 'on' : 'off';
-						}
-						opts.push(
-							`"${key}" '${value}'`
-						)
-					})
-				}
+			if (option.queryOptions) {
+				Object.keys(option.queryOptions).forEach(key => {
+					var value = option.queryOptions[key];
+					if (typeof value === 'boolean') {
+						value = value === true ? 'on' : 'off';
+					}
+					opts.push(
+						`"${key}" '${value}'`
+					)
+				})
+			}
 
+			if (opts.length > 0) {
 				sql += ' (' + (opts.join(' , ')) + ')';
 			}
 
