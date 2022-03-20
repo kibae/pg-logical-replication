@@ -61,19 +61,19 @@ var LogicalReplication = function(config) {
 	var feedbackCheckInterval;
 	var standbyMessageTimeout;
 
-	this.getChanges = function(slotName, uptoLsn, option, cb /*(start_err)*/) {
+	this.getChanges = function(slotName, uptoLsn, incomingOption, cb /*(start_err)*/) {
 		if (client) {
 			client.removeAllListeners();
 			client.end();
 			client = null;
 		}
-		option = option || {};
+		option = incomingOption || {};
 
 		standbyMessageTimeout = (typeof option.standbyMessageTimeout === 'undefined') ? 10 : option.standbyMessageTimeout;
 
 		/*
-		 * includeXids : include xid on BEGIN and COMMIT, default false
-		 * includeTimestamp : include timestamp on COMMIT, default false
+		 * includeXids : include xid on BEGIN and COMMIT
+		 * includeTimestamp : include timestamp on COMMIT
 		 */
 		stoped = false;
 		client = new pg.Client(config);
@@ -90,24 +90,27 @@ var LogicalReplication = function(config) {
 			}
 
 			var sql = 'START_REPLICATION SLOT ' + slotName + ' LOGICAL ' + (uptoLsn ? uptoLsn : '0/00000000');
-			var opts = [
-				'"include-xids" \'' + (option.includeXids === true ? 'on' : 'off') + '\'',
-				'"include-timestamp" \'' + (option.includeTimestamp === true ? 'on' : 'off') + '\'',
-			];
 
-			if (option.queryOptions) {
-				Object.keys(option.queryOptions).forEach(key => {
-					var value = option.queryOptions[key];
-					if (typeof value === 'boolean') {
-						value = value === true ? 'on' : 'off';
-					}
-					opts.push(
-						`"${key}" '${value}'`
-					)
-				})
+			if (incomingOption !== undefined) {
+				var opts = [
+					'"include-xids" \'' + (option.includeXids === true ? 'on' : 'off') + '\'',
+					'"include-timestamp" \'' + (option.includeTimestamp === true ? 'on' : 'off') + '\'',
+				];
+
+				if (option.queryOptions) {
+					Object.keys(option.queryOptions).forEach(key => {
+						var value = option.queryOptions[key];
+						if (typeof value === 'boolean') {
+							value = value === true ? 'on' : 'off';
+						}
+						opts.push(
+							`"${key}" '${value}'`
+						)
+					})
+				}
+
+				sql += ' (' + (opts.join(' , ')) + ')';
 			}
-
-			sql += ' (' + (opts.join(' , ')) + ')';
 
 			client.query(sql, function(err) {
 				if (err) {

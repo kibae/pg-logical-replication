@@ -28,7 +28,7 @@ var stream = new LogicalReplication({/*config*/});
 stream.getChanges( /*string*/ slotName, /*string*/ uptoLsn, /*object*/ option, /*function(err)*/ initialErrorCallback );
 ```
 - ```uptoLsn``` can be null, the minimum value is "0/00000000".
-- ```option``` can contain any of the following optional properties
+- ```option``` can contain any of the following optional properties; if set to ```undefined``` no options are sent to database
 	- ```standbyMessageTimeout``` : maximum seconds between keepalive messages (default: 10) 
     - ```includeXids``` : bool (default: false)
     - ```includeTimestamp``` : bool (default: false)
