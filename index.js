@@ -61,7 +61,7 @@ var LogicalReplication = function(config) {
 	var feedbackCheckInterval;
 	var standbyMessageTimeout;
 
-	this.getChanges = function(slotName, uptoLsn, incomingOption, cb /*(start_err)*/) {
+	this.getChanges = function(slotName, uptoLsn, option, cb /*(start_err)*/) {
 		if (client) {
 			client.removeAllListeners();
 			client.end();
