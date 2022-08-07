@@ -37,6 +37,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build
+    - run: sleep 20
     - name: Test
       run: npm test
       env:
