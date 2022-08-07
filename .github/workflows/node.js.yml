@@ -20,13 +20,13 @@ jobs:
 
     services:
       postgres:
-        image: kibaes/postgres-logical-replication-dev:14-dev-20220808
+        image: kibaes/postgres-logical-replication-dev:14-dev-20220811
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgrespw
           POSTGRES_DB: playground
         ports:
-          - 54320:5432
+          - 5432:5432
 
     steps:
     - uses: actions/checkout@v3
@@ -37,7 +37,11 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build
-    - run: npm test
+    - name: Test
+      run: npm test
+      env:
+        POSTGRES_HOST: postgres
+        POSTGRES_PORT: 5432
     - uses: actions/upload-artifact@v3
       if: success() || failure()
       with:

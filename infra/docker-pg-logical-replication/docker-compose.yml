@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: kibaes/postgres-logical-replication-dev:14-dev-20220810
+    image: kibaes/postgres-logical-replication-dev:14-dev-20220811
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespw
