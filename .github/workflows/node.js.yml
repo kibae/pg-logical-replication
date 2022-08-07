@@ -27,6 +27,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: docker-compose --project-directory ./infra/docker-pg-logical-replication up -d
+    - run: sleep 10
     - run: npm run build
     - run: npm test
     - uses: actions/upload-artifact@v3
