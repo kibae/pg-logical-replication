@@ -25,6 +25,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgrespw
           POSTGRES_DB: playground
+        ports:
+          - 54320:5432
 
     steps:
     - uses: actions/checkout@v3
@@ -35,11 +37,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build
-    - name: Test
-      run: npm test
-      env:
-        POSTGRES_HOST: postgres
-        POSTGRES_PORT: 5432
+    - run: npm test
     - uses: actions/upload-artifact@v3
       if: success() || failure()
       with:
