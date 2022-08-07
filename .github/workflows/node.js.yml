@@ -13,9 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x]
+#    strategy:
+#      matrix:
+#        node-version: [14.x, 16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     services:
@@ -37,7 +37,6 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build
-    - run: sleep 20
     - name: Test
       run: npm test
       env:
