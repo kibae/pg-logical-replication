@@ -15,12 +15,16 @@
     "postgresql",
     "pg",
     "libpq",
-    "postgre",
     "database",
     "rdbms",
     "replication",
     "logical",
-    "logical-replication"
+    "logical-replication",
+    "cdc",
+    "wal2json",
+    "decoderbufs",
+    "typescript",
+    "nodejs"
   ],
   "homepage": "http://github.com/kibae/pg-logical-replication",
   "repository": {
