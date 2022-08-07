@@ -40,7 +40,7 @@ jobs:
     - name: Test
       run: npm test
       env:
-        POSTGRES_HOST: postgres
+#        POSTGRES_HOST: postgres
         POSTGRES_PORT: 5432
     - uses: actions/upload-artifact@v3
       if: success() || failure()
