@@ -8,3 +8,5 @@ export const TestClientConfig: ClientConfig = {
   password: 'postgrespw',
   database: 'playground',
 };
+
+console.log(TestClientConfig);
