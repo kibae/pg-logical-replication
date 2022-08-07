@@ -1,13 +1,9 @@
-
 services:
   postgres:
-    image: kibaes/postgres-logical-replication-dev:14
+    image: kibaes/postgres-logical-replication-dev:14-dev-20220808
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespw
       POSTGRES_DB: playground
     ports:
       - "54320:5432"
-    volumes:
-      - "./postgresql.conf:/etc/postgresql/postgresql.conf"
-      - "./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
