@@ -9,5 +9,3 @@ export const TestClientConfig: ClientConfig = {
   database: 'playground',
   // connectionString: `postgres://postgres:postgrespw@${process.env.POSTGRES_HOST || 'localhost'}:${Number(process.env.POSTGRES_PORT || 54320)}/playground`,
 };
-
-console.log(TestClientConfig);
