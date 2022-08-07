@@ -30,17 +30,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
         cache: 'npm'
+    - run: node -v
+    - run: npm -v
     - run: npm ci
     - run: npm run build
     - name: Test
       run: npm test
       env:
-#        POSTGRES_HOST: postgres
         POSTGRES_PORT: 5432
     - uses: actions/upload-artifact@v3
       if: success() || failure()
