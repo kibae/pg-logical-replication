@@ -7,7 +7,18 @@ export interface ReplicationClientConfig extends ClientConfig {
 }
 
 export interface LogicalReplicationConfig {
-  standbyMessageTimeout: number;
+  acknowledge?: {
+    /**
+     * If the value is false, acknowledge must be done manually.
+     * Default: true
+     */
+    auto: boolean;
+    /**
+     * Acknowledge is performed every set time (sec). If 0, do not do it.
+     * Default: 10
+     */
+    timeoutSeconds: 0 | 10 | number;
+  };
 }
 
 export interface LogicalReplicationService {
@@ -26,8 +37,11 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
   constructor(public readonly clientConfig: ClientConfig, config?: Partial<LogicalReplicationConfig>) {
     super();
     this.config = {
-      standbyMessageTimeout: 10,
-      ...(config || {}),
+      acknowledge: {
+        auto: true,
+        timeoutSeconds: 10,
+        ...(config?.acknowledge || {}),
+      },
     };
   }
 
@@ -105,7 +119,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         if (buffer[0] == 0x77) {
           // XLogData
           this.emit('data', lsn, plugin.parse(buffer.subarray(25)));
-          this.acknowledge(lsn);
+          this._acknowledge(lsn);
         } else if (buffer[0] == 0x6b) {
           // Primary keepalive message
           const timestamp = Math.floor(
@@ -125,9 +139,11 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     }
   }
 
-  private async acknowledge(lsn: string) {
+  private async _acknowledge(lsn: string) {
+    if (!this.config.acknowledge!.auto) return;
+
     this.emit('acknowledge', lsn);
-    await this.updateStandbyStatus(lsn);
+    await this.acknowledge(lsn);
   }
 
   private lastStandbyStatusUpdatedTime = 0;
@@ -137,21 +153,23 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
       clearInterval(this.checkStandbyStatusTimer);
       this.checkStandbyStatusTimer = null;
     }
-    if (this.config.standbyMessageTimeout > 0 && enable)
+    if (this.config.acknowledge!.timeoutSeconds > 0 && enable)
       this.checkStandbyStatusTimer = setInterval(async () => {
         if (this._stop) return;
 
-        if (this._lastLsn && Date.now() - this.lastStandbyStatusUpdatedTime > this.config.standbyMessageTimeout * 1000)
-          await this.updateStandbyStatus(this._lastLsn);
+        if (
+          this._lastLsn &&
+          Date.now() - this.lastStandbyStatusUpdatedTime > this.config.acknowledge!.timeoutSeconds * 1000
+        )
+          await this.acknowledge(this._lastLsn);
       }, 1000);
   }
 
   /**
-   *
    * @param lsn
    */
-  private async updateStandbyStatus(lsn: string) {
-    if (this._stop) return;
+  public async acknowledge(lsn: string): Promise<boolean> {
+    if (this._stop) return false;
     this.lastStandbyStatusUpdatedTime = Date.now();
 
     const slice = lsn.split('/');
@@ -194,5 +212,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
 
     // @ts-ignore
     this._connection?.sendCopyFromChunk(response);
+
+    return true;
   }
 }

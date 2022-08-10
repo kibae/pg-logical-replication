@@ -1,6 +1,10 @@
 # pg-logical-replication
 
 - PostgreSQL Logical Replication client for node.js
+- Supported pligins
+  - [wal2json](https://github.com/eulerto/wal2json) (Recommended)
+  - [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
+  - [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
 
 ## 1. Install
 - **pg-logical-replication** depends on [pq (node-postgres)](https://github.com/brianc/node-postgres) >= 6.2.2
