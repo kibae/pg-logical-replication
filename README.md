@@ -90,31 +90,31 @@ const service = new LogicalReplicationService(
    * node-postgres Client options for connection
    * https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/pg/index.d.ts#L16
    */
-  clientConfig : {
-    user ? : string | undefined;
-    database ? : string | undefined;
-    password ? : string | (() => string | Promise<string>) | undefined;
-    port ? : number | undefined;
-    host ? : string | undefined;
-    connectionString ? : string | undefined;
-    keepAlive ? : boolean | undefined;
-    stream ? : stream.Duplex | undefined;
-    statement_timeout ? : false | number | undefined;
-    parseInputDatesAsUTC ? : boolean | undefined;
-    ssl ? : boolean | ConnectionOptions | undefined;
-    query_timeout ? : number | undefined;
-    keepAliveInitialDelayMillis ? : number | undefined;
-    idle_in_transaction_session_timeout ? : number | undefined;
-    application_name ? : string | undefined;
-    connectionTimeoutMillis ? : number | undefined;
-    types ? : CustomTypesConfig | undefined;
-    options ? : string | undefined;
+  clientConfig: {
+    user?: string | undefined;
+    database?: string | undefined;
+    password?: string | (() => string | Promise<string>) | undefined;
+    port?: number | undefined;
+    host?: string | undefined;
+    connectionString?: string | undefined;
+    keepAlive?: boolean | undefined;
+    stream?: stream.Duplex | undefined;
+    statement_timeout?: false | number | undefined;
+    parseInputDatesAsUTC?: boolean | undefined;
+    ssl?: boolean | ConnectionOptions | undefined;
+    query_timeout?: number | undefined;
+    keepAliveInitialDelayMillis?: number | undefined;
+    idle_in_transaction_session_timeout?: number | undefined;
+    application_name?: string | undefined;
+    connectionTimeoutMillis?: number | undefined;
+    types?: CustomTypesConfig | undefined;
+    options?: string | undefined;
   },
   /**
    * Logical replication service config
    * https://github.com/kibae/pg-logical-replication/blob/main/src/logical-replication-service.ts#L9
    */
-  config ? : Partial<{
+  config?: Partial<{
     acknowledge?: {
       /**
        * If the value is false, acknowledge must be done manually.
