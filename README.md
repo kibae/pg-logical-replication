@@ -3,6 +3,7 @@
 - [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html) client for node.js
 - Supported plugins
     - [wal2json](https://github.com/eulerto/wal2json) (Recommended)
+    - [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
     - [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
     - [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
 - [Document for old version(1.x)](https://github.com/kibae/pg-logical-replication/blob/master/README-1.x.md)
