@@ -1,8 +1,6 @@
 import { AbstractPlugin } from '../abstract.plugin';
 import { Client } from 'pg';
-
-// https://github.com/debezium/postgres-decoderbufs/blob/main/proto/pg_logicaldec.proto
-const decoderbufsProto = require('./pg_logicaldec.proto.json');
+import decoderbufsProto from './pg_logicaldec.proto';
 
 export interface ProtocolBuffersPluginOptions {}
 

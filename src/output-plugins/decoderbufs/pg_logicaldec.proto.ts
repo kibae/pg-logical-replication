@@ -1,4 +1,5 @@
-{
+// https://github.com/debezium/postgres-decoderbufs/blob/main/proto/pg_logicaldec.proto
+export default {
   "nested": {
     "decoderbufs": {
       "options": {
