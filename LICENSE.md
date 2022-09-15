@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2017 Kibae Shin (nonunnet@gmail.com)
+Copyright (c) 2017 Kibae Shin (kibae.shin@gmail.com), [Contributors](https://github.com/kibae/pg-logical-replication/graphs/contributors)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

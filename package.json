@@ -1,18 +1,32 @@
 {
   "name": "pg-logical-replication",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "jest --maxWorkers=1",
+    "test:watch": "jest --watch",
+    "build": "rm -rf dist/* ; tsc -p tsconfig.build.json",
+    "publish": "npm run build && npm publish --access public"
+  },
   "keywords": [
     "postgres",
     "postgresql",
     "pg",
     "libpq",
-    "postgre",
     "database",
     "rdbms",
     "replication",
     "logical",
-    "logical-replication"
+    "logical-decoding",
+    "logical-replication",
+    "cdc",
+    "wal2json",
+    "pgoutput",
+    "decoderbufs",
+    "typescript",
+    "nodejs"
   ],
   "homepage": "http://github.com/kibae/pg-logical-replication",
   "repository": {
@@ -41,12 +55,53 @@
       "url": "https://github.com/c4l3b"
     }
   ],
-  "main": "./index",
+  "files": [
+    "dist/**/*"
+  ],
+  "devDependencies": {
+    "@types/jest": "^28.1.6",
+    "@types/pg": "^8.6.5",
+    "jest": "^28.1.3",
+    "jest-junit": "^14.0.0",
+    "prettier": "^2.7.1",
+    "protobufjs": "^7.0.0",
+    "ts-jest": "^28.0.7",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  },
   "dependencies": {
-    "pg": "^6.2.2"
+    "eventemitter2": ">=6.4.0",
+    "pg": ">=6.2.2"
+  },
+  "peerDependencies": {
+    "eventemitter2": ">=6.4.0",
+    "pg": ">=6.2.2"
   },
   "license": "MIT",
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 14.0.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src/"
+    ],
+    "reporters": [
+      "default",
+      "jest-junit"
+    ]
   }
 }
