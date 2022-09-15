@@ -19,9 +19,11 @@
     "rdbms",
     "replication",
     "logical",
+    "logical-decoding",
     "logical-replication",
     "cdc",
     "wal2json",
+    "pgoutput",
     "decoderbufs",
     "typescript",
     "nodejs"

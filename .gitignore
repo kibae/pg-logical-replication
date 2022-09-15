@@ -2,3 +2,4 @@
 .idea
 /dist/
 /junit.xml
+/coverage/
