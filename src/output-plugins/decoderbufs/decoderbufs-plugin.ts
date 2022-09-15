@@ -4,13 +4,13 @@ import { Client } from 'pg';
 // https://github.com/debezium/postgres-decoderbufs/blob/main/proto/pg_logicaldec.proto
 const decoderbufsProto = require('./pg_logicaldec.proto.json');
 
-export interface ProtocolBuffersDecodingPluginOptions {}
+export interface ProtocolBuffersPluginOptions {}
 
-export class ProtocolBuffersDecodingPlugin extends AbstractPlugin<ProtocolBuffersDecodingPluginOptions> {
+export class ProtocolBuffersPlugin extends AbstractPlugin<ProtocolBuffersPluginOptions> {
   private proto: any;
   private rowMessage: any;
 
-  constructor(options?: ProtocolBuffersDecodingPluginOptions) {
+  constructor(options?: ProtocolBuffersPluginOptions) {
     super(options || {});
     try {
       const protobufjs = require('protobufjs');

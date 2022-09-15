@@ -1,4 +1,4 @@
-export interface Wal2JsonDecodingPluginOptions {
+export interface Wal2JsonPluginOptions {
   /**
    * include-xids: add xid to each changeset. Default is false.
    */
@@ -119,7 +119,7 @@ export interface Wal2JsonDecodingPluginOptions {
   actions?: string;
 }
 
-export const StringOptionKeys: Array<keyof Wal2JsonDecodingPluginOptions> = [
+export const StringOptionKeys: Array<keyof Wal2JsonPluginOptions> = [
   'filterOrigins',
   'filterTables',
   'addTables',

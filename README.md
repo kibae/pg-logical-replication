@@ -2,8 +2,8 @@
 
 - [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html) client for node.js
 - Supported plugins
-    - [wal2json](https://github.com/eulerto/wal2json) (Recommended)
     - [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
+    - [wal2json](https://github.com/eulerto/wal2json)
     - [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
     - [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
 - [Document for old version(1.x)](https://github.com/kibae/pg-logical-replication/blob/master/README-1.x.md)
@@ -50,8 +50,8 @@ const service = new LogicalReplicationService(
   }
 )
 
-// `TestDecodingPlugin` for test_decoding and `ProtocolBuffersDecodingPlugin` for decoderbufs are also available.
-const plugin = new Wal2JsonDecodingPlugin({
+// `TestDecodingPlugin` for test_decoding and `ProtocolBuffersPlugin` for decoderbufs are also available.
+const plugin = new Wal2JsonPlugin({
   /**
    * Plugin options for wal2json
    * https://github.com/kibae/pg-logical-replication/blob/main/src/output-plugins/wal2json/wal2json-plugin-options.type.ts
@@ -165,9 +165,10 @@ const service = new LogicalReplicationService(
 ----
 
 ## 4. Output Plugins
-### 4-1. `Wal2JsonDecodingPlugin` for [wal2json](https://github.com/eulerto/wal2json) (Recommended)
-### 4-2. `ProtocolBuffersDecodingPlugin` for [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
-### 4-3. `TestDecodingPlugin` for [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
+### 4-1. `PgoutputPlugin` for [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
+### 4-2. `Wal2JsonPlugin` for [wal2json](https://github.com/eulerto/wal2json)
+### 4-3. `ProtocolBuffersPlugin` for [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
+### 4-4. `TestDecodingPlugin` for [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
 
 
 ## Contributors

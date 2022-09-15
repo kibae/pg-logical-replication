@@ -4,7 +4,7 @@ SELECT * FROM pg_create_logical_replication_slot('slot_decoderbufs', 'decoderbuf
 import { Client } from 'pg';
 import { LogicalReplicationService } from '../logical-replication-service';
 import { TestClientConfig } from './client-config';
-import { ProtocolBuffersDecodingPlugin } from '../output-plugins/decoderbufs/decoderbufs-plugin';
+import { ProtocolBuffersPlugin } from '../output-plugins/decoderbufs/decoderbufs-plugin';
 import {
   ProtocolBuffers,
   ProtocolBuffersOperation,
@@ -40,7 +40,7 @@ describe('decoderbufs', () => {
 
   it('Insert, Delete(w/FK)', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
-    const plugin = new ProtocolBuffersDecodingPlugin({});
+    const plugin = new ProtocolBuffersPlugin({});
 
     let inserted = 0;
     let deleted = 0;
@@ -105,7 +105,7 @@ describe('decoderbufs', () => {
 
   it('Update', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
-    const plugin = new ProtocolBuffersDecodingPlugin({});
+    const plugin = new ProtocolBuffersPlugin({});
 
     let rowCount = 0;
     service.on('data', (lsn: string, log: ProtocolBuffers.RowMessage) => {

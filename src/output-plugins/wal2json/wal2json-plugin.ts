@@ -1,13 +1,13 @@
 import { AbstractPlugin } from '../abstract.plugin';
 import { Client } from 'pg';
-import { StringOptionKeys, Wal2JsonDecodingPluginOptions } from './wal2json-plugin-options.type';
+import { StringOptionKeys, Wal2JsonPluginOptions } from './wal2json-plugin-options.type';
 
 /**
  * wal2json
  * https://github.com/eulerto/wal2json
  */
-export class Wal2JsonDecodingPlugin extends AbstractPlugin<Wal2JsonDecodingPluginOptions> {
-  constructor(options?: Wal2JsonDecodingPluginOptions) {
+export class Wal2JsonPlugin extends AbstractPlugin<Wal2JsonPluginOptions> {
+  constructor(options?: Wal2JsonPluginOptions) {
     super(options || {});
   }
 
@@ -18,8 +18,7 @@ export class Wal2JsonDecodingPlugin extends AbstractPlugin<Wal2JsonDecodingPlugi
   async start(client: Client, slotName: string, lastLsn: string): Promise<any> {
     const options: string[] = [];
     Object.entries(this.options).map(([key, value]) => {
-      if (StringOptionKeys.includes(key as keyof Wal2JsonDecodingPluginOptions))
-        options.push(`"${dashCase(key)}" '${value}'`);
+      if (StringOptionKeys.includes(key as keyof Wal2JsonPluginOptions)) options.push(`"${dashCase(key)}" '${value}'`);
       else options.push(`"${dashCase(key)}" '${value ? 'on' : 'off'}'`);
     });
 

@@ -4,7 +4,7 @@ SELECT * FROM pg_create_logical_replication_slot('slot_wal2json', 'wal2json');
 import { Client } from 'pg';
 import { LogicalReplicationService } from '../logical-replication-service';
 import { TestClientConfig } from './client-config';
-import { Wal2JsonDecodingPlugin } from '../output-plugins/wal2json/wal2json-plugin';
+import { Wal2JsonPlugin } from '../output-plugins/wal2json/wal2json-plugin';
 import { Wal2Json } from '../output-plugins/wal2json/wal2json-plugin-output.type';
 
 jest.setTimeout(1000 * 10);
@@ -37,7 +37,7 @@ describe('wal2json', () => {
 
   it('Insert, Delete(w/FK)', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
-    const plugin = new Wal2JsonDecodingPlugin({});
+    const plugin = new Wal2JsonPlugin({});
 
     let inserted = 0;
     let deleted = 0;
@@ -102,7 +102,7 @@ describe('wal2json', () => {
 
   it('Update', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
-    const plugin = new Wal2JsonDecodingPlugin({});
+    const plugin = new Wal2JsonPlugin({});
 
     let rowCount = 0;
     service.on('data', (lsn: string, log: Wal2Json.Output) => {
