@@ -21,7 +21,6 @@ describe('decoderbufs', () => {
   });
 
   afterAll(async () => {
-    await client.dropSlot();
     await client.end();
   });
 

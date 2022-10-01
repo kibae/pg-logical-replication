@@ -27,7 +27,6 @@ describe('pgoutput', () => {
   });
 
   afterAll(async () => {
-    await client.dropSlot();
     await client.query(
       //language=sql
       `DROP
@@ -263,7 +262,7 @@ describe('pgoutput', () => {
            column2 = md5(RANDOM()::TEXT)`
     );
 
-    await sleep(30_000);
+    await sleep(50_000);
 
     expect(rowCount).toBe(count);
 

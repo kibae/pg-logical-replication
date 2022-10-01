@@ -16,7 +16,6 @@ describe('test_decoding', () => {
   });
 
   afterAll(async () => {
-    await client.dropSlot();
     await client.end();
   });
 

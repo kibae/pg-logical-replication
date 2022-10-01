@@ -17,7 +17,6 @@ describe('wal2json', () => {
   });
 
   afterAll(async () => {
-    await client.dropSlot();
     await client.end();
   });
 
