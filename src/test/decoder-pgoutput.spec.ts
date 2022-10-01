@@ -265,6 +265,7 @@ describe('pgoutput', () => {
     for (let i = 0; i < 100; i++) {
       if (rowCount >= count) break;
       await sleep(1000);
+      console.log(`Updated: ${rowCount}/${count}`);
     }
 
     expect(rowCount).toBe(count);
