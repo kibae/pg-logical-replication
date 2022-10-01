@@ -2,7 +2,8 @@
 
 - [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html) client for node.js
 - Supported plugins
-    - [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
+    - [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL, Recommended)
+      - Use the pgoutput plugin to process huge transactions.
     - [wal2json](https://github.com/eulerto/wal2json)
     - [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
     - [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
@@ -166,6 +167,7 @@ const service = new LogicalReplicationService(
 
 ## 4. Output Plugins
 ### 4-1. `PgoutputPlugin` for [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
+- Use the pgoutput plugin to process large-scale transactions.
 ### 4-2. `Wal2JsonPlugin` for [wal2json](https://github.com/eulerto/wal2json)
 ### 4-3. `ProtocolBuffersPlugin` for [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
 ### 4-4. `TestDecodingPlugin` for [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)

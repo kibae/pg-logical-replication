@@ -1,36 +1,22 @@
 /*
 SELECT * FROM pg_create_logical_replication_slot('slot_test_decoding', 'test_decoding');
 */
-import { Client } from 'pg';
 import { LogicalReplicationService } from '../logical-replication-service';
 import { TestClientConfig } from './client-config';
 import { TestDecodingPlugin } from '../output-plugins/test_decoding/test-decoding-plugin';
+import { sleep, TestClient } from './test-common';
 
 jest.setTimeout(1000 * 10);
 const [slotName, decoderName] = ['slot_test_decoding', 'test_decoding'];
 
-let client: Client;
+let client: TestClient;
 describe('test_decoding', () => {
   beforeAll(async () => {
-    client = new Client({ ...TestClientConfig });
-    await client.connect();
-
-    await client
-      .query(
-        //language=sql
-        `SELECT *
-         FROM pg_create_logical_replication_slot('${slotName}', '${decoderName}')`
-      )
-      .catch((e) => {});
+    client = await TestClient.New(slotName, decoderName);
   });
 
   afterAll(async () => {
-    await client
-      .query(
-        //language=sql
-        `SELECT pg_drop_replication_slot('${slotName}')`
-      )
-      .catch((e) => {});
+    await client.dropSlot();
     await client.end();
   });
 
@@ -53,7 +39,7 @@ describe('test_decoding', () => {
       });
     })();
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await sleep(100);
 
     // insert
     const result = await client.query(
@@ -65,7 +51,7 @@ describe('test_decoding', () => {
     );
     expect(result.rowCount).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     expect(inserted).toBe(5);
 
     // insert child
@@ -79,7 +65,7 @@ describe('test_decoding', () => {
       ).rowCount
     ).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     expect(inserted).toBe(10);
 
     // delete
@@ -92,7 +78,7 @@ describe('test_decoding', () => {
       ).rowCount
     ).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
@@ -116,7 +102,7 @@ describe('test_decoding', () => {
       });
     })();
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await sleep(100);
 
     expect(
       (
@@ -129,7 +115,7 @@ describe('test_decoding', () => {
       ).rowCount
     ).toBe(10);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await sleep(1000);
 
     expect(rowCount).toBe(10);
     await service.stop();

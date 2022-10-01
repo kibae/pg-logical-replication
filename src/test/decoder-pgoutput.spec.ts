@@ -1,41 +1,38 @@
-import { Client } from 'pg';
-import { LogicalReplicationService } from '../';
+import { LogicalReplicationService } from '../logical-replication-service';
 import { TestClientConfig } from './client-config';
+import { Pgoutput, PgoutputPlugin } from '../output-plugins/pgoutput';
+import { TestClient } from './test-common';
 
-import { PgoutputPlugin, Pgoutput } from '../output-plugins/pgoutput';
-
-jest.setTimeout(10_000);
-const slotName = 'pgoutput_test_slot';
-const publicationName = 'pgoutput_test_pub';
-const decoderName = 'pgoutput';
+jest.setTimeout(100_000);
+const [slotName, decoderName, publicationName] = ['slot_pgoutput', 'pgoutput', 'pgoutput_test_pub'];
 
 const lsnRe = /^[0-9A-F]{8}\/[0-9A-F]{8}$/;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-let client: Client;
+
+let client: TestClient;
 
 describe('pgoutput', () => {
   beforeAll(async () => {
-    client = new Client({ ...TestClientConfig });
-    await client.connect();
-
-    await client
-      .query(
-        //language=sql
-        `SELECT *
-         FROM pg_create_logical_replication_slot('${slotName}', '${decoderName}');
-        CREATE PUBLICATION "${publicationName}" FOR ALL TABLES;`
-      )
-      .catch((e) => {});
+    client = await TestClient.New(slotName, decoderName);
+    await client.query(
+      //language=sql
+      `DROP
+      PUBLICATION IF EXISTS "${publicationName}"`
+    );
+    await client.query(
+      //language=sql
+      `CREATE
+      PUBLICATION "${publicationName}" FOR ALL TABLES`
+    );
   });
 
   afterAll(async () => {
-    await client
-      .query(
-        //language=sql
-        `SELECT pg_drop_replication_slot('${slotName}');
-        DROP PUBLICATION "${publicationName}";`
-      )
-      .catch((e) => {});
+    await client.dropSlot();
+    await client.query(
+      //language=sql
+      `DROP
+      PUBLICATION IF EXISTS "${publicationName}"`
+    );
     await client.end();
   });
 
@@ -58,9 +55,8 @@ describe('pgoutput', () => {
     const result = await client.query(
       //language=sql
       `INSERT INTO users(firstname, lastname, email, phone)
-           SELECT md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
-           FROM generate_series(1, 5)
-           RETURNING *`
+       SELECT md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
+       FROM generate_series(1, 5) RETURNING *`
     );
     expect(result.rowCount).toBe(5);
 
@@ -70,7 +66,9 @@ describe('pgoutput', () => {
         await client.query(
           //language=sql
           `INSERT INTO user_contents(user_id, title, body)
-       SELECT id, md5(RANDOM()::TEXT), md5(RANDOM()::TEXT) FROM users WHERE id >= ${result.rows[0].id}`
+           SELECT id, md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
+           FROM users
+           WHERE id >= ${result.rows[0].id}`
         )
       ).rowCount
     ).toBe(5);
@@ -124,7 +122,9 @@ describe('pgoutput', () => {
       (
         await client.query(
           //language=sql
-          `DELETE FROM users WHERE id >= ${result.rows[0].id}`
+          `DELETE
+           FROM users
+           WHERE id >= ${result.rows[0].id}`
         )
       ).rowCount
     ).toBe(5);
@@ -222,6 +222,50 @@ describe('pgoutput', () => {
         created: expect.any(Date),
       },
     });
+
+    await service.stop();
+  });
+
+  it('Huge transaction', async () => {
+    const service = new LogicalReplicationService(TestClientConfig);
+    const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
+
+    let rowCount = 0;
+    service.on('data', (lsn: string, log: Pgoutput.Message) => {
+      // console.log(lsn, log);
+      rowCount += log.tag === 'update' ? 1 : 0;
+    });
+    // setInterval(() => console.log(`Updated: ${rowCount}`), 1000);
+
+    (function proc() {
+      service.subscribe(plugin, slotName).catch((e) => {
+        console.error(e);
+        setTimeout(proc, 100);
+      });
+    })();
+
+    await sleep(100);
+
+    const count = Number(
+      (
+        await client.query(
+          //language=sql
+          `SELECT COUNT(*) AS cnt
+       FROM huge_transaction`
+        )
+      ).rows[0].cnt
+    );
+
+    await client.query(
+      //language=sql
+      `UPDATE huge_transaction
+       SET column1 = md5(RANDOM()::TEXT),
+           column2 = md5(RANDOM()::TEXT)`
+    );
+
+    await sleep(30_000);
+
+    expect(rowCount).toBe(count);
 
     await service.stop();
   });

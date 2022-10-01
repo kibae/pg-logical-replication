@@ -105,6 +105,8 @@
     "reporters": [
       "default",
       "jest-junit"
-    ]
+    ],
+    "maxConcurrency": 1,
+    "maxWorkers": 1
   }
 }

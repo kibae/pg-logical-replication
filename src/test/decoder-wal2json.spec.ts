@@ -1,37 +1,23 @@
 /*
 SELECT * FROM pg_create_logical_replication_slot('slot_wal2json', 'wal2json');
 */
-import { Client } from 'pg';
 import { LogicalReplicationService } from '../logical-replication-service';
 import { TestClientConfig } from './client-config';
 import { Wal2JsonPlugin } from '../output-plugins/wal2json/wal2json-plugin';
 import { Wal2Json } from '../output-plugins/wal2json/wal2json-plugin-output.type';
+import { sleep, TestClient } from './test-common';
 
-jest.setTimeout(1000 * 10);
+jest.setTimeout(1000 * 30);
 const [slotName, decoderName] = ['slot_wal2json', 'wal2json'];
 
-let client: Client;
+let client: TestClient;
 describe('wal2json', () => {
   beforeAll(async () => {
-    client = new Client({ ...TestClientConfig });
-    await client.connect();
-
-    await client
-      .query(
-        //language=sql
-        `SELECT *
-         FROM pg_create_logical_replication_slot('${slotName}', '${decoderName}')`
-      )
-      .catch((e) => {});
+    client = await TestClient.New(slotName, decoderName);
   });
 
   afterAll(async () => {
-    await client
-      .query(
-        //language=sql
-        `SELECT pg_drop_replication_slot('${slotName}')`
-      )
-      .catch((e) => {});
+    await client.dropSlot();
     await client.end();
   });
 
@@ -54,19 +40,18 @@ describe('wal2json', () => {
       });
     })();
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await sleep(100);
 
     // insert
     const result = await client.query(
       //language=sql
       `INSERT INTO users(firstname, lastname, email, phone)
-           SELECT md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
-           FROM generate_series(1, 5)
-           RETURNING *`
+       SELECT md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
+       FROM generate_series(1, 5) RETURNING *`
     );
     expect(result.rowCount).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     expect(inserted).toBe(5);
 
     // insert child
@@ -75,12 +60,14 @@ describe('wal2json', () => {
         await client.query(
           //language=sql
           `INSERT INTO user_contents(user_id, title, body)
-       SELECT id, md5(RANDOM()::TEXT), md5(RANDOM()::TEXT) FROM users WHERE id >= ${result.rows[0].id}`
+           SELECT id, md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
+           FROM users
+           WHERE id >= ${result.rows[0].id}`
         )
       ).rowCount
     ).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     expect(inserted).toBe(10);
 
     // delete
@@ -88,12 +75,14 @@ describe('wal2json', () => {
       (
         await client.query(
           //language=sql
-          `DELETE FROM users WHERE id >= ${result.rows[0].id}`
+          `DELETE
+           FROM users
+           WHERE id >= ${result.rows[0].id}`
         )
       ).rowCount
     ).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
@@ -117,7 +106,7 @@ describe('wal2json', () => {
       });
     })();
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await sleep(100);
 
     expect(
       (
@@ -130,7 +119,7 @@ describe('wal2json', () => {
       ).rowCount
     ).toBe(10);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await sleep(1000);
 
     expect(rowCount).toBe(10);
     await service.stop();

@@ -1,34 +1,34 @@
-import { Client } from 'pg'
+import { Client } from 'pg';
 
-import { AbstractPlugin } from '../abstract.plugin'
-import { Message, Options } from './pgoutput.types'
-import { PgoutputParser } from './pgoutput-parser'
+import { AbstractPlugin } from '../abstract.plugin';
+import { Message, Options } from './pgoutput.types';
+import { PgoutputParser } from './pgoutput-parser';
 
 export class PgoutputPlugin extends AbstractPlugin<Options> {
-  private parser: PgoutputParser
+  private parser: PgoutputParser;
 
   constructor(options: Options) {
-    super(options)
+    super(options);
 
-    this.parser = new PgoutputParser()
+    this.parser = new PgoutputParser();
   }
 
   get name(): string {
-    return 'pgoutput'
+    return 'pgoutput';
   }
 
   parse(buffer: Buffer): Message {
-    return this.parser.parse(buffer)
+    return this.parser.parse(buffer);
   }
 
   start(client: Client, slotName: string, lastLsn: string): Promise<any> {
     const options = [
       `proto_version '${this.options.protoVersion}'`,
       `publication_names '${this.options.publicationNames.join(',')}'`,
-    ].join(', ')
+    ];
 
-    const sql = `START_REPLICATION SLOT "${slotName}" LOGICAL ${lastLsn} (${options})`
+    const sql = `START_REPLICATION SLOT "${slotName}" LOGICAL ${lastLsn} (${options.join(', ')})`;
 
-    return client.query(sql)
+    return client.query(sql);
   }
 }

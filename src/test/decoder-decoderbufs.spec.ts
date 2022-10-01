@@ -9,32 +9,19 @@ import {
   ProtocolBuffers,
   ProtocolBuffersOperation,
 } from '../output-plugins/decoderbufs/decoderbufs-plugin-output.type';
+import { sleep, TestClient } from './test-common';
 
 jest.setTimeout(1000 * 10);
 const [slotName, decoderName] = ['slot_decoderbufs', 'decoderbufs'];
 
-let client: Client;
+let client: TestClient;
 describe('decoderbufs', () => {
   beforeAll(async () => {
-    client = new Client({ ...TestClientConfig });
-    await client.connect();
-
-    await client
-      .query(
-        //language=sql
-        `SELECT *
-         FROM pg_create_logical_replication_slot('${slotName}', '${decoderName}')`
-      )
-      .catch((e) => {});
+    client = await TestClient.New(slotName, decoderName);
   });
 
   afterAll(async () => {
-    await client
-      .query(
-        //language=sql
-        `SELECT pg_drop_replication_slot('${slotName}')`
-      )
-      .catch((e) => {});
+    await client.dropSlot();
     await client.end();
   });
 
@@ -57,7 +44,7 @@ describe('decoderbufs', () => {
       });
     })();
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await sleep(100);
 
     // insert
     const result = await client.query(
@@ -69,7 +56,7 @@ describe('decoderbufs', () => {
     );
     expect(result.rowCount).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     expect(inserted).toBe(5);
 
     // insert child
@@ -83,7 +70,7 @@ describe('decoderbufs', () => {
       ).rowCount
     ).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     expect(inserted).toBe(10);
 
     // delete
@@ -96,7 +83,7 @@ describe('decoderbufs', () => {
       ).rowCount
     ).toBe(5);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await sleep(500);
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
@@ -120,7 +107,7 @@ describe('decoderbufs', () => {
       });
     })();
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await sleep(100);
 
     expect(
       (
@@ -133,7 +120,7 @@ describe('decoderbufs', () => {
       ).rowCount
     ).toBe(10);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await sleep(1000);
 
     expect(rowCount).toBe(10);
     await service.stop();

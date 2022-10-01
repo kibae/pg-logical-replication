@@ -20,7 +20,7 @@ jobs:
 
     services:
       postgres:
-        image: kibaes/postgres-logical-replication-dev:14-dev-20220811
+        image: kibaes/postgres-logical-replication-dev:14-dev-20221002
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgrespw
