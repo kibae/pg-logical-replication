@@ -1,7 +1,6 @@
 /*
 SELECT * FROM pg_create_logical_replication_slot('slot_decoderbufs', 'decoderbufs');
 */
-import { Client } from 'pg';
 import { LogicalReplicationService } from '../logical-replication-service';
 import { TestClientConfig } from './client-config';
 import { ProtocolBuffersPlugin } from '../output-plugins/decoderbufs/decoderbufs-plugin';

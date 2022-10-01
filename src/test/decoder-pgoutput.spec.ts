@@ -262,7 +262,10 @@ describe('pgoutput', () => {
            column2 = md5(RANDOM()::TEXT)`
     );
 
-    await sleep(50_000);
+    for (let i = 0; i < 100; i++) {
+      if (rowCount >= count) break;
+      await sleep(1000);
+    }
 
     expect(rowCount).toBe(count);
 
