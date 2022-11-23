@@ -236,6 +236,9 @@ describe('pgoutput', () => {
     });
     // setInterval(() => console.log(`Updated: ${rowCount}`), 1000);
 
+    const heartbeatCb = jest.fn()
+    service.on('heartbeat', heartbeatCb);
+
     (function proc() {
       service.subscribe(plugin, slotName).catch((e) => {
         console.error(e);
@@ -269,6 +272,11 @@ describe('pgoutput', () => {
     }
 
     expect(rowCount).toBe(count);
+    expect(heartbeatCb).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Number),
+      expect.any(Boolean)
+    )
 
     await service.stop();
   });

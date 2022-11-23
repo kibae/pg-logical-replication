@@ -125,7 +125,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
           const timestamp = Math.floor(
             buffer.readUInt32BE(9) * 4294967.296 + buffer.readUInt32BE(13) / 1000 + 946080000000
           );
-          const shouldRespond = buffer.readInt8(17);
+          const shouldRespond = !!buffer.readInt8(17);
           this.emit('heartbeat', lsn, timestamp, shouldRespond);
         }
         this._lastLsn = lsn;
