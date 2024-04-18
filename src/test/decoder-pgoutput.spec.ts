@@ -225,6 +225,48 @@ describe('pgoutput', () => {
     await service.stop();
   });
 
+  it('Rollback', async () => {
+    const service = new LogicalReplicationService(TestClientConfig);
+    const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
+    const messages: Pgoutput.Message[] = [];
+
+    service.on('data', (lsn: string, log: Pgoutput.Message) => {
+      messages.push(log);
+    });
+
+    service.subscribe(plugin, slotName).catch((e) => {
+      console.error('Error from .subscribe', e);
+    });
+
+    await sleep(100);
+
+    //language=sql
+    const insertQuery = `INSERT INTO users(firstname, lastname, email, phone)
+       SELECT md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
+       FROM generate_series(1, 5) RETURNING *`;
+    // insert
+    expect((await client.query(insertQuery)).rowCount).toBe(5);
+
+    await sleep(100);
+    expect(messages.filter((msg) => msg.tag === 'insert').length).toBe(5);
+
+    await client.query('BEGIN');
+    expect((await client.query(insertQuery)).rowCount).toBe(5);
+    await client.query('ROLLBACK');
+
+    await sleep(100);
+    expect(messages.filter((msg) => msg.tag === 'insert').length).toBe(5);
+
+    await client.query('BEGIN');
+    expect((await client.query(insertQuery)).rowCount).toBe(5);
+    await client.query('COMMIT');
+
+    await sleep(100);
+    expect(messages.filter((msg) => msg.tag === 'insert').length).toBe(10);
+
+    await service.stop();
+  });
+
   it('Huge transaction', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
@@ -236,7 +278,7 @@ describe('pgoutput', () => {
     });
     // setInterval(() => console.log(`Updated: ${rowCount}`), 1000);
 
-    const heartbeatCb = jest.fn()
+    const heartbeatCb = jest.fn();
     service.on('heartbeat', heartbeatCb);
 
     (function proc() {
@@ -272,11 +314,7 @@ describe('pgoutput', () => {
     }
 
     expect(rowCount).toBe(count);
-    expect(heartbeatCb).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(Number),
-      expect.any(Boolean)
-    )
+    expect(heartbeatCb).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Boolean));
 
     await service.stop();
   });

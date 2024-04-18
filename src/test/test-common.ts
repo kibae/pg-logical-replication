@@ -16,6 +16,7 @@ export class TestClient extends Client {
       console.error(e);
     });
   }
+
   public async dropSlot() {
     await this.query(
       //language=sql

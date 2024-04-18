@@ -73,6 +73,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
   public isStop(): boolean {
     return this._stop;
   }
+
   public async stop(): Promise<this> {
     this._stop = true;
 
