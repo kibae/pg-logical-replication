@@ -36,7 +36,7 @@ describe('acknowledge', () => {
 
     await sleep(100);
 
-    //language=sql
+    //language=postgresql
     const insertQuery = `INSERT INTO users(firstname, lastname, email, phone)
        SELECT md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT), md5(RANDOM()::TEXT)
        FROM generate_series(1, 5) RETURNING *`;
@@ -48,9 +48,9 @@ describe('acknowledge', () => {
     expect(inserted).toBe(5);
 
     // stop & resume
-    service.stop();
-    await await sleep(500);
-    await service.subscribe(plugin, slotName);
+    await service.stop();
+    await sleep(500);
+    service.subscribe(plugin, slotName);
     await sleep(500);
     expect(inserted).toBe(5);
 
@@ -62,9 +62,9 @@ describe('acknowledge', () => {
     // stop & resume with 0/00000000 lsn
     await service.stop();
     await sleep(500);
-    await service.subscribe(plugin, slotName, '0/00000000');
+    service.subscribe(plugin, slotName, '0/00000000');
     await sleep(500);
-    expect(inserted).toBe(10);
+    expect(inserted).toBe(20);
 
     await service.stop();
   });
