@@ -5,18 +5,17 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main", "ts-main" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "ts-main" ]
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-#    strategy:
-#      matrix:
-#        node-version: [14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x, 20.x]
 
     services:
       postgres:
@@ -30,10 +29,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js 16.x
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: node -v
     - run: npm -v
