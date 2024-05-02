@@ -1,4 +1,9 @@
-import { TextDecoder } from 'util'
+// TextDecoder is available as a global in Node.js since v11
+// https://nodejs.org/docs/latest-v11.x/api/util.html#util_new_textdecoder_encoding_options
+//
+// Unfortunately it was not added to the @types/node until v16
+// https://github.com/DefinitelyTyped/DefinitelyTyped/commit/2b8becf0c5785e7d9f02db8adf695fdec3ea13d6
+declare const TextDecoder: typeof import('util').TextDecoder
 
 // should not use { fatal: true } because ErrorResponse can use invalid utf8 chars
 const textDecoder = new TextDecoder()
