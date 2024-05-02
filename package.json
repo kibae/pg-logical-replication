@@ -1,6 +1,6 @@
 {
   "name": "pg-logical-replication",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -58,6 +58,11 @@
       "name": "Matt R. Wilson",
       "email": "github.public@mattw.co",
       "url": "https://github.com/mastermatt"
+    },
+    {
+      "name": "Erik Arvidsson",
+      "email": "erik.arvidsson@gmail.com",
+      "url": "https://github.com/arv"
     }
   ],
   "files": [
