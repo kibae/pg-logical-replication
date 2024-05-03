@@ -1,5 +1,4 @@
 # pg-logical-replication
-
 - [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html) client for node.js
 - Supported plugins
     - [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL, Recommended)
@@ -15,7 +14,6 @@
 
 
 ## 1. Install
-
 - **pg-logical-replication** depends on [pq(node-postgres)  >= 6.2.2](https://github.com/brianc/node-postgres)
   and [eventemitter2](https://www.npmjs.com/package/eventemitter2)
 
