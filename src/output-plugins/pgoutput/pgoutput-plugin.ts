@@ -1,8 +1,8 @@
 import { Client } from 'pg';
 
-import { AbstractPlugin } from '../abstract.plugin';
-import { Message, Options } from './pgoutput.types';
-import { PgoutputParser } from './pgoutput-parser';
+import { AbstractPlugin } from '../abstract.plugin.js';
+import { PgoutputParser } from './pgoutput-parser.js';
+import { Message, Options } from './pgoutput.types.js';
 
 export class PgoutputPlugin extends AbstractPlugin<Options> {
   private parser: PgoutputParser;

@@ -1,6 +1,6 @@
-import { AbstractPlugin } from '../abstract.plugin';
 import { Client } from 'pg';
-import decoderbufsProto from './pg_logicaldec.proto';
+import { AbstractPlugin } from '../abstract.plugin.js';
+import decoderbufsProto from './pg_logicaldec.proto.js';
 
 export interface ProtocolBuffersPluginOptions {}
 

@@ -1,7 +1,7 @@
-import { LogicalReplicationService } from '../logical-replication-service';
-import { TestClientConfig } from './client-config';
-import { Pgoutput, PgoutputPlugin } from '../output-plugins/pgoutput';
-import { TestClient } from './test-common';
+import { LogicalReplicationService } from '../logical-replication-service.js';
+import { Pgoutput, PgoutputPlugin } from '../output-plugins/pgoutput/index.js';
+import { TestClientConfig } from './client-config.js';
+import { TestClient } from './test-common.js';
 
 jest.setTimeout(100_000);
 const [slotName, decoderName, publicationName] = ['slot_pgoutput', 'pgoutput', 'pgoutput_test_pub'];

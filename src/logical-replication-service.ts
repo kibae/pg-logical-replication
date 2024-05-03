@@ -1,6 +1,6 @@
 import EventEmitter2 from 'eventemitter2';
 import { Client, ClientConfig, Connection } from 'pg';
-import { AbstractPlugin } from './output-plugins/abstract.plugin';
+import { AbstractPlugin } from './output-plugins/abstract.plugin.js';
 
 export interface ReplicationClientConfig extends ClientConfig {
   replication: 'database';

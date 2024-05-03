@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { TestClientConfig } from './client-config';
+import { TestClientConfig } from './client-config.js';
 
 export class TestClient extends Client {
   private constructor(public readonly slotName: string, public readonly decoderName: string) {

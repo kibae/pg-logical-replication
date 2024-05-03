@@ -1,5 +1,5 @@
-import { AbstractPlugin } from '../abstract.plugin';
 import { Client } from 'pg';
+import { AbstractPlugin } from '../abstract.plugin.js';
 
 const decoder = require('./decoder');
 
