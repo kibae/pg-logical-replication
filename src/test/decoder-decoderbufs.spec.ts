@@ -1,14 +1,14 @@
 /*
 SELECT * FROM pg_create_logical_replication_slot('slot_decoderbufs', 'decoderbufs');
 */
-import { LogicalReplicationService } from '../logical-replication-service';
-import { TestClientConfig } from './client-config';
-import { ProtocolBuffersPlugin } from '../output-plugins/decoderbufs/decoderbufs-plugin';
+import { LogicalReplicationService } from '../logical-replication-service.js';
 import {
   ProtocolBuffers,
   ProtocolBuffersOperation,
-} from '../output-plugins/decoderbufs/decoderbufs-plugin-output.type';
-import { sleep, TestClient } from './test-common';
+} from '../output-plugins/decoderbufs/decoderbufs-plugin-output.type.js';
+import { ProtocolBuffersPlugin } from '../output-plugins/decoderbufs/decoderbufs-plugin.js';
+import { TestClientConfig } from './client-config.js';
+import { TestClient, sleep } from './test-common.js';
 
 jest.setTimeout(1000 * 10);
 const [slotName, decoderName] = ['slot_decoderbufs', 'decoderbufs'];

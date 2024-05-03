@@ -1,7 +1,7 @@
 // https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html
 import { types } from 'pg';
 
-import { BinaryReader } from './binary-reader';
+import { BinaryReader } from './binary-reader.js';
 import {
   Message,
   MessageBegin,
@@ -15,7 +15,7 @@ import {
   MessageType,
   MessageUpdate,
   RelationColumn,
-} from './pgoutput.types';
+} from './pgoutput.types.js';
 
 export class PgoutputParser {
   _typeCache = new Map<number, { typeSchema: string; typeName: string }>();

@@ -1,2 +1,3 @@
-export * from './pgoutput-plugin';
-export * as Pgoutput from './pgoutput.types';
+export * from './pgoutput-plugin.js';
+export * as Pgoutput from './pgoutput.types.js';
+

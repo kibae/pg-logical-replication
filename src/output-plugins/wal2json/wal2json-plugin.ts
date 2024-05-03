@@ -1,6 +1,6 @@
-import { AbstractPlugin } from '../abstract.plugin';
 import { Client } from 'pg';
-import { StringOptionKeys, Wal2JsonPluginOptions } from './wal2json-plugin-options.type';
+import { AbstractPlugin } from '../abstract.plugin.js';
+import { StringOptionKeys, Wal2JsonPluginOptions } from './wal2json-plugin-options.type.js';
 
 /**
  * wal2json

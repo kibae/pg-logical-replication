@@ -1,11 +1,11 @@
 /*
 SELECT * FROM pg_create_logical_replication_slot('slot_decoderbufs', 'decoderbufs');
 */
-import { LogicalReplicationService } from '../logical-replication-service';
-import { TestClientConfig } from './client-config';
-import { sleep, TestClient } from './test-common';
-import { Wal2JsonPlugin } from '../output-plugins/wal2json/wal2json-plugin';
-import { Wal2Json } from '../output-plugins/wal2json/wal2json-plugin-output.type';
+import { LogicalReplicationService } from '../logical-replication-service.js';
+import { Wal2Json } from '../output-plugins/wal2json/wal2json-plugin-output.type.js';
+import { Wal2JsonPlugin } from '../output-plugins/wal2json/wal2json-plugin.js';
+import { TestClientConfig } from './client-config.js';
+import { sleep, TestClient } from './test-common.js';
 
 jest.setTimeout(1000 * 10);
 const [slotName, decoderName] = ['slot_acknowledge', 'wal2json'];

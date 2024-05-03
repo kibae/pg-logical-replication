@@ -1,10 +1,10 @@
 /*
 SELECT * FROM pg_create_logical_replication_slot('slot_test_decoding', 'test_decoding');
 */
-import { LogicalReplicationService } from '../logical-replication-service';
-import { TestClientConfig } from './client-config';
-import { TestDecodingPlugin } from '../output-plugins/test_decoding/test-decoding-plugin';
-import { sleep, TestClient } from './test-common';
+import { LogicalReplicationService } from '../logical-replication-service.js';
+import { TestDecodingPlugin } from '../output-plugins/test_decoding/test-decoding-plugin.js';
+import { TestClientConfig } from './client-config.js';
+import { sleep, TestClient } from './test-common.js';
 
 jest.setTimeout(1000 * 10);
 const [slotName, decoderName] = ['slot_test_decoding', 'test_decoding'];
