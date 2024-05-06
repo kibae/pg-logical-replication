@@ -55,6 +55,8 @@ export declare module Wal2Json {
      * +options.includeNotNull : true
      */
     columnoptionals: boolean[];
+
+    oldkeys?: { keynames: string[]; keytypes: string[]; keyvalues: any[] };
   }
 
   export interface Pk {
