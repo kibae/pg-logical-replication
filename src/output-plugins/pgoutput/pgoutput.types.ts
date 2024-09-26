@@ -2,6 +2,7 @@
 export interface Options {
   protoVersion: 1 | 2
   publicationNames: string[]
+  messages?: boolean
 }
 
 export type Message =

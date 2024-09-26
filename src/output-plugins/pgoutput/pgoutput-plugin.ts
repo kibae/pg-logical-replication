@@ -25,6 +25,7 @@ export class PgoutputPlugin extends AbstractPlugin<Options> {
     const options = [
       `proto_version '${this.options.protoVersion}'`,
       `publication_names '${this.options.publicationNames.join(',')}'`,
+      `messages '${this.options.messages ?? false}'`,
     ];
 
     const sql = `START_REPLICATION SLOT "${slotName}" LOGICAL ${lastLsn} (${options.join(', ')})`;

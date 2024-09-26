@@ -267,6 +267,55 @@ describe('pgoutput', () => {
     await service.stop();
   });
 
+  it('Message', async () => {
+    const service = new LogicalReplicationService(TestClientConfig);
+    const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName], messages: true });
+    const messages: Pgoutput.Message[] = [];
+
+    service.on('data', (lsn: string, log: Pgoutput.Message) => {
+      messages.push(log);
+    });
+
+    service.subscribe(plugin, slotName).catch((e) => {
+      console.error('Error from .subscribe', e);
+    });
+
+    await sleep(100);
+
+    await client.query(
+      //language=sql
+      `SELECT pg_logical_emit_message(true, 'test_prefix', 'test_content')`
+    );
+    await client.query(
+      //language=sql
+      `SELECT pg_logical_emit_message(true, 'test_prefix2', 'test_content2')`
+    );
+
+    await sleep(1000);
+
+    const msgs = messages.filter((msg) => msg.tag === 'message');
+    expect(msgs.length).toBe(2);
+
+    expect(msgs[0]).toStrictEqual({
+      content: Buffer.from('test_content'),
+      flags: 1,
+      messageLsn: expect.stringMatching(lsnRe),
+      prefix: 'test_prefix',
+      tag: 'message',
+      transactional: true,
+    });
+    expect(msgs[1]).toStrictEqual({
+      content: Buffer.from('test_content2'),
+      flags: 1,
+      messageLsn: expect.stringMatching(lsnRe),
+      prefix: 'test_prefix2',
+      tag: 'message',
+      transactional: true,
+    });
+
+    await service.stop();
+  });
+
   it('Huge transaction', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
