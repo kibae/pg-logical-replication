@@ -4,14 +4,20 @@ on:
     workflows: ['Node.js CI']
     types:
       - completed
+
 jobs:
-  report:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x, 20.x]
+
     steps:
       - uses: phoenix-actions/test-reporting@v8
-        id: test-report                     # Set ID reference for step
+        id: test-report
         with:
-          artifact: test-results-*            # artifact name
-          name: JEST Tests                  # Name of the check run which will be created
-          path: '*.xml'                     # Path to test results (inside artifact .zip)
-          reporter: jest-junit              # Format of test results
+          artifact: test-results-${{ matrix.node-version }}
+          name: JEST Tests
+          path: junit.xml
+          reporter: jest-junit
