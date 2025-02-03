@@ -46,6 +46,6 @@ jobs:
       if: success() || failure()
       id: test-report
       with:
-        name: JEST Tests
+        name: JEST Tests (${{ matrix.node-version }})
         path: junit.xml
         reporter: jest-junit
