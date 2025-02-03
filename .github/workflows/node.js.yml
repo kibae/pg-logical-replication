@@ -42,8 +42,10 @@ jobs:
       run: npm test
       env:
         POSTGRES_PORT: 5432
-    - uses: actions/upload-artifact@v4
+    - uses: phoenix-actions/test-reporting@v8
       if: success() || failure()
+      id: test-report
       with:
-        name: test-results-${{ matrix.node-version }}
+        name: JEST Tests
         path: junit.xml
+        reporter: jest-junit
