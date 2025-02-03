@@ -45,5 +45,5 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: success() || failure()
       with:
-        name: test-results
+        name: test-results-${{ matrix.node-version }}
         path: junit.xml
