@@ -148,7 +148,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
   }
 
   private lastStandbyStatusUpdatedTime = 0;
-  private checkStandbyStatusTimer: NodeJS.Timer | null = null;
+  private checkStandbyStatusTimer: NodeJS.Timeout | null = null;
   private checkStandbyStatus(enable: boolean) {
     if (this.checkStandbyStatusTimer) {
       clearInterval(this.checkStandbyStatusTimer);
