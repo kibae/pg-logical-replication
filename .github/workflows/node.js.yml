@@ -9,6 +9,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,10 +39,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: node -v
-    - run: npm -v
-    - run: npm ci
-    - run: npm run build
+    - name: Info
+      run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "NPM cache: $(npm config get cache)"
+    - name: Install/Build
+      run: |
+        npm ci
+        npm run build
     - name: Test
       run: npm test
       env:
