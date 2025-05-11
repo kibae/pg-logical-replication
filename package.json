@@ -1,6 +1,6 @@
 {
   "name": "pg-logical-replication",
-  "version": "2.0.7",
+  "version": "2.1.0",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -91,34 +91,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">= 14.0.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/src/"
-    ],
-    "reporters": [
-      "default",
-      "jest-junit"
-    ],
-    "maxConcurrency": 1,
-    "maxWorkers": 1,
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    }
+    "node": ">=16.9.0"
   }
 }
