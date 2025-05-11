@@ -1,0 +1,60 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js(16, 18, 20, 22, 24) w/Postgres 16
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16, 18, 20, 22, 24]
+
+    services:
+      postgres:
+        image: kibaes/postgres-logical-replication-dev:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespw
+          POSTGRES_DB: playground
+        ports:
+          - "5432:5432"
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Info
+      run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "NPM cache: $(npm config get cache)"
+    - name: Install/Build
+      run: |
+        npm ci
+        npm run build
+    - name: Test
+      run: npm test
+      env:
+        POSTGRES_PORT: 5432
+    - uses: phoenix-actions/test-reporting@v8
+      if: success() || failure()
+      id: test-report
+      with:
+        name: JEST Tests (${{ matrix.node-version }})
+        path: junit.xml
+        reporter: jest-junit
