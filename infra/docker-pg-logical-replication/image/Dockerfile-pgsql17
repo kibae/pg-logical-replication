@@ -1,0 +1,6 @@
+FROM postgres:17
+
+RUN apt update && apt install -y postgresql-17-wal2json postgresql-17-decoderbufs
+COPY ["./config-files/postgresql-17.conf", "/etc/postgresql/postgresql.conf"]
+COPY ["./docker-entrypoint-initdb.d/*", "/docker-entrypoint-initdb.d/"]
+

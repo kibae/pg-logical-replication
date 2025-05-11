@@ -1,0 +1,6 @@
+FROM postgres:16
+
+RUN apt update && apt install -y postgresql-16-wal2json postgresql-16-decoderbufs
+COPY ["./config-files/postgresql-16.conf", "/etc/postgresql/postgresql.conf"]
+COPY ["./docker-entrypoint-initdb.d/*", "/docker-entrypoint-initdb.d/"]
+
