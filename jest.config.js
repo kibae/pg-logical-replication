@@ -13,11 +13,5 @@ module.exports = {
   maxWorkers: 1,
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
-  },
-  setupFilesAfterEnv: ['./jest.setup.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
+  }
 };
