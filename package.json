@@ -82,7 +82,7 @@
     "prettier": "^3.4.2",
     "protobufjs": "^7.0.0",
     "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
@@ -119,6 +119,11 @@
     "maxWorkers": 1,
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "globals": {
+      "ts-jest": {
+        "useESM": true
+      }
     }
   }
 }
