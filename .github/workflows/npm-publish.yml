@@ -75,7 +75,6 @@ jobs:
         run: npm run build
 
       - name: Publish to NPM
-        if: github.event.inputs.dry_run != 'true'
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             echo "🧪 DRY RUN: Would publish to NPM"
