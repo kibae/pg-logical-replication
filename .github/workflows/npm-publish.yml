@@ -67,6 +67,8 @@ jobs:
           fi
 
       - name: Run tests
+        env:
+          POSTGRES_PORT: 5432
         run: npm test
 
       - name: Build
