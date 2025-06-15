@@ -49,8 +49,6 @@ jobs:
         npm run build
     - name: Test
       run: npm test
-      env:
-        POSTGRES_PORT: 5432
     - uses: phoenix-actions/test-reporting@v8
       if: success() || failure()
       id: test-report

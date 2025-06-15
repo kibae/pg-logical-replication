@@ -1,26 +1,15 @@
-name: Manual NPM Release
+name: NPM Release on PR Merge
 
 on:
-  workflow_dispatch:
-    inputs:
-      version_type:
-        description: 'Version bump type'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-      dry_run:
-        description: 'Dry run (test without publishing)'
-        required: false
-        default: false
-        type: boolean
+  pull_request:
+    types: [closed]
+    branches: [main]
 
 jobs:
   release:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
+    environment: github action
 
     services:
       postgres:
@@ -35,8 +24,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,40 +34,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Configure git
+      - name: Get package version
+        id: package_version
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-      - name: Bump version and create tag
-        id: version_bump
-        run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            echo "🧪 DRY RUN MODE"
-            NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }} --no-git-tag-version)
-            echo "Would bump to version: $NEW_VERSION"
-            git checkout -- package.json package-lock.json
-          else
-            NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }})
-            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-            git push origin main --follow-tags
-          fi
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Run tests
-        env:
-          POSTGRES_PORT: 5432
         run: npm test
 
       - name: Build
         run: npm run build
 
       - name: Publish to NPM
-        run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            echo "🧪 DRY RUN: Would publish to NPM"
-            npm publish --access public --dry-run
-          else
-            npm publish --access public
-          fi
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag "v${{ steps.package_version.outputs.version }}"
+          git push origin "v${{ steps.package_version.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ steps.package_version.outputs.version }}"
+          release_name: Release "v${{ steps.package_version.outputs.version }}"
+          draft: false
+          prerelease: false
