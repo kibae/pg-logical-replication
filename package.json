@@ -7,8 +7,7 @@
   "scripts": {
     "test": "jest --maxWorkers=1",
     "test:watch": "jest --watch",
-    "build": "rm -rf dist/* ; tsc -p tsconfig.build.json",
-    "publish": "npm run build && npm publish --access public"
+    "build": "rm -rf dist/* ; tsc -p tsconfig.build.json"
   },
   "keywords": [
     "postgres",
