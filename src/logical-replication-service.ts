@@ -168,8 +168,9 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
 
   /**
    * @param lsn
+   * @param ping Request server to respond
    */
-  public async acknowledge(lsn: string): Promise<boolean> {
+  public async acknowledge(lsn: string, ping: boolean = false): Promise<boolean> {
     if (this._stop) return false;
     this.lastStandbyStatusUpdatedTime = Date.now();
 
@@ -209,7 +210,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     response.writeUInt32BE(lowerTimestamp, 29);
 
     // If 1, requests server to respond immediately - can be used to verify connectivity
-    response.writeInt8(0, 33);
+    response.writeInt8(ping ? 1 : 0, 33);
 
     // @ts-ignore
     this._connection?.sendCopyFromChunk(response);
