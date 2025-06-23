@@ -10,8 +10,9 @@ on:
 
 permissions:
   checks: write
-  contents: write
+  contents: read
   pull-requests: write
+  actions: read
 
 jobs:
   build:
@@ -56,3 +57,4 @@ jobs:
         name: JEST Tests (${{ matrix.node-version }})
         path: junit.xml
         reporter: jest-junit
+        token: ${{ secrets.GITHUB_TOKEN }}
