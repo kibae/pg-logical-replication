@@ -54,7 +54,7 @@ jobs:
       if: success() || failure()
       id: test-report
       with:
-        name: JEST Tests (${{ matrix.node-version }})
+        name: JEST Tests (${{ matrix.node-version }}, Postgres 14)
         path: junit.xml
         reporter: jest-junit
         token: ${{ secrets.GITHUB_TOKEN }}
