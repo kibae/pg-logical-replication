@@ -19,6 +19,19 @@ export interface LogicalReplicationConfig {
      */
     timeoutSeconds: 0 | 10 | number;
   };
+  /**
+   * Flow control (backpressure) configuration.
+   * When enabled, the stream will be paused until the data handler completes,
+   * preventing memory overflow when processing is slower than the incoming message rate.
+   */
+  flowControl?: {
+    /**
+     * If true, pause the stream until the data handler completes.
+     * This enables backpressure support for async handlers.
+     * Default: false
+     */
+    enabled: boolean;
+  };
 }
 
 export interface LogicalReplicationService {
@@ -41,6 +54,10 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         auto: true,
         timeoutSeconds: 10,
         ...(config?.acknowledge || {}),
+      },
+      flowControl: {
+        enabled: false,
+        ...(config?.flowControl || {}),
       },
     };
   }
@@ -74,8 +91,16 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     return this._stop;
   }
 
+  // Flow control (backpressure) queue
+  private _messageQueue: Array<{ lsn: string; data: any }> = [];
+  private _processing: boolean = false;
+
   public async stop(): Promise<this> {
     this._stop = true;
+
+    // Clear flow control queue
+    this._messageQueue = [];
+    this._processing = false;
 
     this._connection?.removeAllListeners();
     this._connection = null;
@@ -119,8 +144,15 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
 
         if (buffer[0] == 0x77) {
           // XLogData
-          this.emit('data', lsn, plugin.parse(buffer.subarray(25)));
-          this._acknowledge(lsn);
+          if (this.config.flowControl!.enabled) {
+            // Flow control enabled: queue the message and process sequentially
+            this._messageQueue.push({ lsn, data: plugin.parse(buffer.subarray(25)) });
+            this._processQueue();
+          } else {
+            // Original behavior: emit immediately
+            this.emit('data', lsn, plugin.parse(buffer.subarray(25)));
+            this._acknowledge(lsn);
+          }
         } else if (buffer[0] == 0x6b) {
           // Primary keepalive message
           const timestamp = Math.floor(
@@ -145,6 +177,43 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
 
     this.emit('acknowledge', lsn);
     await this.acknowledge(lsn);
+  }
+
+  /**
+   * Process messages in the queue sequentially with backpressure support.
+   * Pauses the stream while processing and resumes when the queue is empty.
+   */
+  private _processQueue(): void {
+    if (this._processing || this._stop) return;
+    this._processing = true;
+
+    // Pause the stream to prevent buffer overflow
+    // @ts-ignore - accessing internal stream property
+    this._connection?.stream?.pause?.();
+
+    const processNext = async (): Promise<void> => {
+      while (this._messageQueue.length > 0 && !this._stop) {
+        const message = this._messageQueue.shift()!;
+
+        try {
+          // Wait for all listeners to complete (supports async handlers)
+          await this.emitAsync('data', message.lsn, message.data);
+          await this._acknowledge(message.lsn);
+        } catch (e) {
+          this.emit('error', e);
+        }
+      }
+
+      this._processing = false;
+
+      // Resume the stream when queue is empty
+      if (!this._stop) {
+        // @ts-ignore - accessing internal stream property
+        this._connection?.stream?.resume?.();
+      }
+    };
+
+    processNext();
   }
 
   private lastStandbyStatusUpdatedTime = 0;

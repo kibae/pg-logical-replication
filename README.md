@@ -23,7 +23,7 @@
 
 ## 1. Install
 
-- **pg-logical-replication** depends on [pq(node-postgres)  >= 6.2.2](https://github.com/brianc/node-postgres)
+- **pg-logical-replication** depends on [pg(node-postgres) >= 6.2.2](https://github.com/brianc/node-postgres)
   and [eventemitter2](https://www.npmjs.com/package/eventemitter2)
 
 ```sh
@@ -71,7 +71,7 @@ const plugin = new Wal2JsonPlugin({
 
 /**
  * Wal2Json.Output
- * https://github.com/kibae/pg-logical-replication/blob/ts-main/src/output-plugins/wal2json/wal2json-plugin-output.type.ts
+ * https://github.com/kibae/pg-logical-replication/blob/main/src/output-plugins/wal2json/wal2json-plugin-output.type.ts
  */
 service.on('data', (lsn: string, log: Wal2Json.Output) => {
   // Do something what you want.
@@ -142,6 +142,14 @@ config ? : Partial<{
      */
     timeoutSeconds: 0 | 10 | number;
   };
+  flowControl?: {
+    /**
+     * If true, pause the stream until the data handler completes.
+     * This enables backpressure support for async handlers.
+     * Default: false
+     */
+    enabled: boolean;
+  };
 }>
 )
 ```
@@ -161,10 +169,37 @@ config ? : Partial<{
 - Usually this is done **automatically**.
 - Manually use only when `new LogicalReplicationService({}, {acknowledge: {auto: false}})`.
 
-### 3-4. Event
+### 3-4. Flow Control (Backpressure)
+
+When processing messages takes longer than the rate at which PostgreSQL sends them, the internal buffer can grow
+indefinitely, leading to memory issues (OOM). The `flowControl` option enables backpressure support to prevent this.
+
+```typescript
+const service = new LogicalReplicationService(clientConfig, {
+  acknowledge: { auto: true, timeoutSeconds: 10 },
+  flowControl: { enabled: true }  // Enable backpressure support
+});
+
+// Now async handlers are fully supported - the stream pauses until processing completes
+service.on('data', async (lsn: string, log: Pgoutput.Message) => {
+  await someSlowAsyncOperation(log);  // Safe: next message waits for this to complete
+});
+```
+
+**How it works:**
+- When `flowControl.enabled` is `true`, the stream is paused while processing each message
+- Messages are queued and processed sequentially
+- The stream resumes only after the handler (including async operations) completes
+- This prevents memory overflow when handlers are slower than the incoming message rate
+
+**Default behavior:**
+- `flowControl.enabled` defaults to `false` for backward compatibility
+- When disabled, messages are emitted immediately without waiting for handler completion
+
+### 3-5. Event
 
 - `on(event: 'start', listener: () => Promise<void> | void)`
-    - Emitted when start replication.
+    - Emitted when replication starts.
 - `on(event: 'data', listener: (lsn: string, log: any) => Promise<void> | void)`
     - Emitted when PostgreSQL data changes. The log value type varies depending on the plugin.
 - `on(event: 'error', listener: (err: Error) => void)`
@@ -173,7 +208,7 @@ config ? : Partial<{
 - `on(event: 'heartbeat', listener: (lsn: string, timestamp: number, shouldRespond: boolean) => Promise<void> | void)`
     - A heartbeat check signal has been received from the server. You may need to run `service.acknowledge()`.
 
-### 3-5. Misc. method
+### 3-6. Misc. method
 
 - `stop(): Promise<this>`
     - Terminate the server's connection and stop replication.
