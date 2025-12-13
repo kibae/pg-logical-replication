@@ -1,6 +1,6 @@
 {
   "name": "pg-logical-replication",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -80,7 +80,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.3",
     "@types/pg": "^8.6.5",
-    "jest": "^30.0.0",
+    "jest": "^30.2.0",
     "jest-junit": "^16.0.0",
     "prettier": "^3.4.2",
     "protobufjs": "^7.0.0",
