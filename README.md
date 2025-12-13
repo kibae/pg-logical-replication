@@ -20,6 +20,7 @@
 | PostgreSQL 15       | [![Node.js(16, 18, 20, 22, 24) w/Postgres 15](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql15.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql15.yml) |
 | PostgreSQL 16       | [![Node.js(16, 18, 20, 22, 24) w/Postgres 16](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql16.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql16.yml) |
 | PostgreSQL 17       | [![Node.js(16, 18, 20, 22, 24) w/Postgres 17](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql17.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql17.yml) |
+| PostgreSQL 18       | [![Node.js(16, 18, 20, 22, 24) w/Postgres 18](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql18.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql18.yml) |
 
 ## 1. Install
 
@@ -97,61 +98,58 @@ service.on('data', (lsn: string, log: Wal2Json.Output) => {
 ### 3-1. `Constructor(clientConfig: ClientConfig, config?: Partial<LogicalReplicationConfig>)`
 
 ```typescript
-const service = new LogicalReplicationService(
+const service = new LogicalReplicationService({
   /**
    * node-postgres Client options for connection
    * https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/pg/index.d.ts#L16
    */
-  clientConfig
-:
-{
-  user ? : string | undefined;
-  database ? : string | undefined;
-  password ? : string | (() => string | Promise<string>) | undefined;
-  port ? : number | undefined;
-  host ? : string | undefined;
-  connectionString ? : string | undefined;
-  keepAlive ? : boolean | undefined;
-  stream ? : stream.Duplex | undefined;
-  statement_timeout ? : false | number | undefined;
-  parseInputDatesAsUTC ? : boolean | undefined;
-  ssl ? : boolean | ConnectionOptions | undefined;
-  query_timeout ? : number | undefined;
-  keepAliveInitialDelayMillis ? : number | undefined;
-  idle_in_transaction_session_timeout ? : number | undefined;
-  application_name ? : string | undefined;
-  connectionTimeoutMillis ? : number | undefined;
-  types ? : CustomTypesConfig | undefined;
-  options ? : string | undefined;
-}
-,
-/**
- * Logical replication service config
- * https://github.com/kibae/pg-logical-replication/blob/main/src/logical-replication-service.ts#L9
- */
-config ? : Partial<{
-  acknowledge?: {
-    /**
-     * If the value is false, acknowledge must be done manually.
-     * Default: true
-     */
-    auto: boolean;
-    /**
-     * Acknowledge is performed every set time (sec). If 0, do not do it.
-     * Default: 10
-     */
-    timeoutSeconds: 0 | 10 | number;
-  };
-  flowControl?: {
-    /**
-     * If true, pause the stream until the data handler completes.
-     * This enables backpressure support for async handlers.
-     * Default: false
-     */
-    enabled: boolean;
-  };
-}>
-)
+  clientConfig: {
+    user? : string | undefined;
+    database? : string | undefined;
+    password? : string | (() => string | Promise<string>) | undefined;
+    port? : number | undefined;
+    host? : string | undefined;
+    connectionString? : string | undefined;
+    keepAlive? : boolean | undefined;
+    stream? : stream.Duplex | undefined;
+    statement_timeout? : false | number | undefined;
+    parseInputDatesAsUTC? : boolean | undefined;
+    ssl? : boolean | ConnectionOptions | undefined;
+    query_timeout? : number | undefined;
+    keepAliveInitialDelayMillis? : number | undefined;
+    idle_in_transaction_session_timeout? : number | undefined;
+    application_name? : string | undefined;
+    connectionTimeoutMillis? : number | undefined;
+    types? : CustomTypesConfig | undefined;
+    options? : string | undefined;
+  },
+  /**
+   * Logical replication service config
+   * https://github.com/kibae/pg-logical-replication/blob/main/src/logical-replication-service.ts#L9
+   */
+  config? : Partial<{
+    acknowledge?: {
+      /**
+       * If the value is false, acknowledge must be done manually.
+       * Default: true
+       */
+      auto: boolean;
+      /**
+       * Acknowledge is performed every set time (sec). If 0, do not do it.
+       * Default: 10
+       */
+      timeoutSeconds: 0 | 10 | number;
+    };
+    flowControl?: {
+      /**
+       * If true, pause the stream until the data handler completes.
+       * This enables backpressure support for async handlers.
+       * Default: false
+       */
+      enabled: boolean;
+    };
+  }>
+})
 ```
 
 ### 3-2. `subscribe(plugin: AbstractPlugin, slotName: string, uptoLsn?: string): Promise<this>`
