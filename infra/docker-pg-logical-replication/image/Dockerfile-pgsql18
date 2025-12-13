@@ -1,0 +1,6 @@
+FROM postgres:18
+
+RUN apt update && apt install -y postgresql-18-wal2json postgresql-18-decoderbufs
+COPY ["./config-files/postgresql-18.conf", "/etc/postgresql/postgresql.conf"]
+COPY ["./docker-entrypoint-initdb.d/*", "/docker-entrypoint-initdb.d/"]
+
