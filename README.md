@@ -220,8 +220,7 @@ service.on('data', async (lsn: string, log: Pgoutput.Message) => {
 
 ## 4. Output Plugins
 
-### 4-1.
-`PgoutputPlugin` for [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
+### 4-1. `PgoutputPlugin` for [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to PostgreSQL)
 
 - Use the pgoutput plugin to process large-scale transactions.
 
@@ -229,8 +228,7 @@ service.on('data', async (lsn: string, log: Pgoutput.Message) => {
 
 ### 4-3. `ProtocolBuffersPlugin` for [decoderbufs](https://github.com/debezium/postgres-decoderbufs)
 
-### 4-4.
-`TestDecodingPlugin` for [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
+### 4-4. `TestDecodingPlugin` for [test_decoding](https://www.postgresql.org/docs/current/test-decoding.html) (Not recommended)
 
 ## Contributors
 
