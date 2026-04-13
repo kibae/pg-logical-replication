@@ -6,7 +6,7 @@ export enum ProtocolBuffersOperation {
   BEGIN = 3,
   COMMIT = 4,
 }
-export declare module ProtocolBuffers {
+export declare namespace ProtocolBuffers {
   export interface Point {
     x: number;
     y: number;
