@@ -86,7 +86,7 @@ describe('decoderbufs', () => {
     expect(deleted).toBe(10);
 
     await service.stop();
-  });
+    service.removeAllListeners();  });
 
   it('Update', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -122,5 +122,5 @@ describe('decoderbufs', () => {
 
     expect(rowCount).toBe(10);
     await service.stop();
-  });
+    service.removeAllListeners();  });
 });

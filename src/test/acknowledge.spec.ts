@@ -48,7 +48,7 @@ describe('acknowledge', () => {
 
     // stop & resume
     await service.stop();
-    await sleep(500);
+    service.removeAllListeners();    await sleep(500);
     service.subscribe(plugin, slotName);
     await sleep(500);
     expect(inserted).toBe(5);
@@ -60,11 +60,12 @@ describe('acknowledge', () => {
 
     // stop & resume with 0/00000000 lsn
     await service.stop();
-    await sleep(500);
+    service.removeAllListeners();    await sleep(500);
     service.subscribe(plugin, slotName, '0/00000000');
     await sleep(500);
     expect(inserted).toBe(20);
 
     await service.stop();
+    service.removeAllListeners();
   });
 });

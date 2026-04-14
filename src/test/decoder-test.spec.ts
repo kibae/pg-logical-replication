@@ -82,7 +82,7 @@ describe('test_decoding', () => {
     expect(deleted).toBe(10);
 
     await service.stop();
-  });
+    service.removeAllListeners();  });
 
   it('Update', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -118,5 +118,5 @@ describe('test_decoding', () => {
 
     expect(rowCount).toBe(10);
     await service.stop();
-  });
+    service.removeAllListeners();  });
 });
