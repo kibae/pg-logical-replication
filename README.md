@@ -135,8 +135,9 @@ const service = new LogicalReplicationService({
        */
       auto: boolean;
       /**
-       * Acknowledge is performed every set time (sec). If 0, do not do it.
-       * Default: 10
+       * Periodically sends standby status (keepalive) to PostgreSQL.
+       * When auto is true, also advances the WAL flush position.
+       * Set to 0 to disable. Default: 10
        */
       timeoutSeconds: 0 | 10 | number;
     };
@@ -192,7 +193,7 @@ service.on('data', async (lsn: string, log: Wal2Json.Output) => {
 });
 ```
 
-> **Note:** When `auto: false`, the `timeoutSeconds` timer has no effect — it will not send any standby status automatically. Set `timeoutSeconds: 0` to make this explicit.
+> **Note:** When `auto: false`, `timeoutSeconds` still sends periodic standby status (keepalive) to PostgreSQL to maintain the connection, but does **not** advance the WAL flush position. Set `timeoutSeconds: 0` to disable keepalive entirely.
 
 ### 3-4. Flow Control (Backpressure)
 
