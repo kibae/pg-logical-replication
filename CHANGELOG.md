@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v3.0.0 (2026-04-14)
 
 ### Features
 - Add `destroy()` method to `LogicalReplicationService` for clean full shutdown
