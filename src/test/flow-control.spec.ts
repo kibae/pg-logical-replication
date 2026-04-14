@@ -60,7 +60,7 @@ describe('flowControl', () => {
     // Wait for all messages to be processed
     await sleep(2000);
 
-    await service.stop();
+    await service.destroy();
     // With flowControl enabled, messages should be processed in order
     // Both processing and completion order should be sequential
     expect(processingOrder).toEqual([0, 1, 2, 3, 4]);
@@ -106,7 +106,7 @@ describe('flowControl', () => {
     // Wait for all messages to be processed
     await sleep(2000);
 
-    await service.stop();
+    await service.destroy();
     // Without flowControl, messages start processing in order
     expect(processingOrder).toEqual([0, 1, 2, 3, 4]);
 
@@ -160,7 +160,7 @@ describe('flowControl', () => {
 
     await sleep(2000);
 
-    await service.stop();
+    await service.destroy();
     // Should process all messages except the one that threw
     expect(processedMessages).toEqual(['msg-0', 'msg-1', 'msg-3', 'msg-4']);
     expect(errors.length).toBe(1);
@@ -201,7 +201,7 @@ describe('flowControl', () => {
 
     // Stop the service after a short delay (before all messages are processed)
     await sleep(300);
-    await service.stop();
+    await service.destroy();
     // Should have processed fewer than 5 messages due to early stop
     expect(processedMessages.length).toBeLessThan(5);
   });

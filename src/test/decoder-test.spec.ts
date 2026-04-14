@@ -81,8 +81,8 @@ describe('test_decoding', () => {
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 
   it('Update', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -117,6 +117,6 @@ describe('test_decoding', () => {
     await sleep(1000);
 
     expect(rowCount).toBe(10);
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 });

@@ -164,8 +164,8 @@ describe('pgoutput', () => {
       old: null,
     });
 
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 
   it('Update', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -222,8 +222,8 @@ describe('pgoutput', () => {
       },
     });
 
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 
   it('Rollback', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -264,8 +264,8 @@ describe('pgoutput', () => {
     await sleep(100);
     expect(messages.filter((msg) => msg.tag === 'insert').length).toBe(10);
 
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 
   it('Message', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -313,8 +313,8 @@ describe('pgoutput', () => {
       transactional: true,
     });
 
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 
   it('Huge transaction', async () => {
     const service = new LogicalReplicationService(TestClientConfig);
@@ -365,6 +365,6 @@ describe('pgoutput', () => {
     expect(rowCount).toBe(count);
     expect(heartbeatCb).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Boolean));
 
-    await service.stop();
-    service.removeAllListeners();  });
+    await service.destroy();
+  });
 });

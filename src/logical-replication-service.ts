@@ -110,8 +110,13 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     this._client = null;
 
     this.checkStandbyStatus(false);
-    this.removeAllListeners();
 
+    return this;
+  }
+
+  public async destroy(): Promise<this> {
+    await this.stop();
+    this.removeAllListeners();
     return this;
   }
 
