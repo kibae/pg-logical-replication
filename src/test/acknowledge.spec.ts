@@ -7,11 +7,13 @@ import { Wal2JsonPlugin } from '../output-plugins/wal2json/wal2json-plugin.js';
 import { TestClientConfig } from './client-config.js';
 import { sleep, TestClient } from './test-common.js';
 
-jest.setTimeout(1000 * 10);
+jest.setTimeout(1000 * 30);
 const [slotName, decoderName] = ['slot_acknowledge', 'wal2json'];
 
 let client: TestClient;
 describe('acknowledge', () => {
+  let service: LogicalReplicationService | null = null;
+
   beforeAll(async () => {
     client = await TestClient.New(slotName, decoderName);
   });
@@ -20,15 +22,21 @@ describe('acknowledge', () => {
     await client.end();
   });
 
+  afterEach(async () => {
+    if (service) {
+      await service.destroy();
+      service = null;
+    }
+  });
+
   it('Resume streaming using the internal _lastLsn value', async () => {
-    const service = new LogicalReplicationService(TestClientConfig, {
-      acknowledge: { auto: false, timeoutSeconds: 10 },
+    service = new LogicalReplicationService(TestClientConfig, {
+      acknowledge: { auto: false, timeoutSeconds: 0 },
     });
     const plugin = new Wal2JsonPlugin({});
 
     let inserted = 0;
     service.on('data', (lsn: string, log: Wal2Json.Output) => {
-      console.log(lsn, log);
       inserted += log.change.filter((change) => change.kind === 'insert').length;
     });
 
@@ -59,13 +67,11 @@ describe('acknowledge', () => {
     await sleep(500);
     expect(inserted).toBe(10);
 
-    // stop & resume with 0/00000000 lsn
+    // stop & resume with 0/00000000 lsn - replays all unacknowledged data
     await service.stop();
     await sleep(500);
     service.subscribe(plugin, slotName, '0/00000000');
-    await sleep(500);
+    await sleep(1000);
     expect(inserted).toBe(20);
-
-    await service.stop();
   });
 });

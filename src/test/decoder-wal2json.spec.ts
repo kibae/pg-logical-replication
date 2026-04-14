@@ -12,6 +12,15 @@ const [slotName, decoderName] = ['slot_wal2json', 'wal2json'];
 
 let client: TestClient;
 describe('wal2json', () => {
+  let service: LogicalReplicationService | null = null;
+
+  afterEach(async () => {
+    if (service) {
+      await service.destroy();
+      service = null;
+    }
+  });
+
   beforeAll(async () => {
     client = await TestClient.New(slotName, decoderName);
   });
@@ -21,7 +30,7 @@ describe('wal2json', () => {
   });
 
   it('Insert, Delete(w/FK)', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new Wal2JsonPlugin({});
 
     let inserted = 0;
@@ -85,11 +94,10 @@ describe('wal2json', () => {
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
-    await service.stop();
   });
 
   it('Update', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new Wal2JsonPlugin({});
 
     let rowCount = 0;
@@ -121,6 +129,5 @@ describe('wal2json', () => {
     await sleep(1000);
 
     expect(rowCount).toBe(10);
-    await service.stop();
   });
 });

@@ -9,6 +9,15 @@ const [slotName, decoderName, publicationName] = ['slot_flow_control', 'pgoutput
 let client: TestClient;
 
 describe('flowControl', () => {
+  let service: LogicalReplicationService | null = null;
+
+  afterEach(async () => {
+    if (service) {
+      await service.destroy();
+      service = null;
+    }
+  });
+
   beforeAll(async () => {
     client = await TestClient.New(slotName, decoderName);
     await client.query(`DROP PUBLICATION IF EXISTS "${publicationName}"`);
@@ -21,7 +30,7 @@ describe('flowControl', () => {
   });
 
   it('should process messages sequentially when flowControl is enabled', async () => {
-    const service = new LogicalReplicationService(TestClientConfig, {
+    service = new LogicalReplicationService(TestClientConfig, {
       flowControl: { enabled: true },
     });
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
@@ -60,8 +69,6 @@ describe('flowControl', () => {
     // Wait for all messages to be processed
     await sleep(2000);
 
-    await service.stop();
-
     // With flowControl enabled, messages should be processed in order
     // Both processing and completion order should be sequential
     expect(processingOrder).toEqual([0, 1, 2, 3, 4]);
@@ -69,7 +76,7 @@ describe('flowControl', () => {
   });
 
   it('should process messages concurrently when flowControl is disabled (default)', async () => {
-    const service = new LogicalReplicationService(TestClientConfig, {
+    service = new LogicalReplicationService(TestClientConfig, {
       flowControl: { enabled: false },
     });
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
@@ -107,8 +114,6 @@ describe('flowControl', () => {
     // Wait for all messages to be processed
     await sleep(2000);
 
-    await service.stop();
-
     // Without flowControl, messages start processing in order
     expect(processingOrder).toEqual([0, 1, 2, 3, 4]);
 
@@ -121,7 +126,7 @@ describe('flowControl', () => {
   });
 
   it('should handle errors in async handlers without blocking the queue', async () => {
-    const service = new LogicalReplicationService(TestClientConfig, {
+    service = new LogicalReplicationService(TestClientConfig, {
       flowControl: { enabled: true },
     });
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
@@ -162,8 +167,6 @@ describe('flowControl', () => {
 
     await sleep(2000);
 
-    await service.stop();
-
     // Should process all messages except the one that threw
     expect(processedMessages).toEqual(['msg-0', 'msg-1', 'msg-3', 'msg-4']);
     expect(errors.length).toBe(1);
@@ -171,7 +174,7 @@ describe('flowControl', () => {
   });
 
   it('should stop processing when service is stopped', async () => {
-    const service = new LogicalReplicationService(TestClientConfig, {
+    service = new LogicalReplicationService(TestClientConfig, {
       flowControl: { enabled: true },
     });
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
@@ -204,8 +207,6 @@ describe('flowControl', () => {
 
     // Stop the service after a short delay (before all messages are processed)
     await sleep(300);
-    await service.stop();
-
     // Should have processed fewer than 5 messages due to early stop
     expect(processedMessages.length).toBeLessThan(5);
   });

@@ -15,6 +15,15 @@ const [slotName, decoderName] = ['slot_decoderbufs', 'decoderbufs'];
 
 let client: TestClient;
 describe('decoderbufs', () => {
+  let service: LogicalReplicationService | null = null;
+
+  afterEach(async () => {
+    if (service) {
+      await service.destroy();
+      service = null;
+    }
+  });
+
   beforeAll(async () => {
     client = await TestClient.New(slotName, decoderName);
   });
@@ -24,7 +33,7 @@ describe('decoderbufs', () => {
   });
 
   it('Insert, Delete(w/FK)', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new ProtocolBuffersPlugin({});
 
     let inserted = 0;
@@ -85,11 +94,10 @@ describe('decoderbufs', () => {
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
-    await service.stop();
   });
 
   it('Update', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new ProtocolBuffersPlugin({});
 
     let rowCount = 0;
@@ -121,6 +129,5 @@ describe('decoderbufs', () => {
     await sleep(1000);
 
     expect(rowCount).toBe(10);
-    await service.stop();
   });
 });

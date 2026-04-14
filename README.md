@@ -138,6 +138,11 @@ const service = new LogicalReplicationService({
        * Acknowledge is performed every set time (sec). If 0, do not do it.
        * Default: 10
        */
+      /**
+       * Periodically send standby status (heartbeat) to PostgreSQL and acknowledge WAL progress.
+       * Only takes effect when auto is true. If 0, do not send periodic acknowledgements.
+       * Default: 10
+       */
       timeoutSeconds: 0 | 10 | number;
     };
     flowControl?: {
@@ -166,6 +171,33 @@ const service = new LogicalReplicationService({
 - After processing the data, it signals the PostgreSQL server that it is OK to clear the WAL log.
 - Usually this is done **automatically**.
 - Manually use only when `new LogicalReplicationService({}, {acknowledge: {auto: false}})`.
+
+**Manual acknowledge example:**
+
+```typescript
+const service = new LogicalReplicationService(clientConfig, {
+  acknowledge: {
+    auto: false,      // Disable automatic acknowledgement
+    timeoutSeconds: 0 // Disable periodic standby status as well
+  }
+});
+
+service.on('data', async (lsn: string, log: Wal2Json.Output) => {
+  try {
+    // Process the change
+    await processChange(log);
+
+    // Manually acknowledge only after successful processing.
+    // PostgreSQL will not advance the replication slot until this is called.
+    await service.acknowledge(lsn);
+  } catch (err) {
+    // If you don't acknowledge, PostgreSQL will re-send this change on reconnect.
+    console.error('Failed to process, skipping ack:', err);
+  }
+});
+```
+
+> **Note:** When `auto: false`, the `timeoutSeconds` timer has no effect — it will not send any standby status automatically. Set `timeoutSeconds: 0` to make this explicit.
 
 ### 3-4. Flow Control (Backpressure)
 
@@ -210,6 +242,10 @@ service.on('data', async (lsn: string, log: Pgoutput.Message) => {
 
 - `stop(): Promise<this>`
     - Terminate the server's connection and stop replication.
+    - Event listeners registered on the service are **preserved**, so you can re-subscribe and receive events again.
+- `destroy(): Promise<this>`
+    - Calls `stop()` and then removes all event listeners via `removeAllListeners()`.
+    - Use this when you are done with the service entirely and want to ensure clean shutdown (e.g. at the end of a test or application lifecycle).
 - `isStop(): boolean`
     - Returns false when replication starts from the server.
 - `lastLsn(): string`

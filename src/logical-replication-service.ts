@@ -114,6 +114,12 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     return this;
   }
 
+  public async destroy(): Promise<this> {
+    await this.stop();
+    this.removeAllListeners();
+    return this;
+  }
+
   async subscribe(plugin: AbstractPlugin, slotName: string): Promise<this>;
   async subscribe(plugin: AbstractPlugin, slotName: string, uptoLsn: string): Promise<this>;
   /**
@@ -228,6 +234,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         if (this._stop) return;
 
         if (
+          this.config.acknowledge!.auto &&
           this._lastLsn &&
           Date.now() - this.lastStandbyStatusUpdatedTime > this.config.acknowledge!.timeoutSeconds * 1000
         )

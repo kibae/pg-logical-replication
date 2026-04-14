@@ -1,4 +1,4 @@
-export declare module Wal2Json {
+export declare namespace Wal2Json {
   export interface Output {
     change: Change[];
 
