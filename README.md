@@ -172,6 +172,33 @@ const service = new LogicalReplicationService({
 - Usually this is done **automatically**.
 - Manually use only when `new LogicalReplicationService({}, {acknowledge: {auto: false}})`.
 
+**Manual acknowledge example:**
+
+```typescript
+const service = new LogicalReplicationService(clientConfig, {
+  acknowledge: {
+    auto: false,      // Disable automatic acknowledgement
+    timeoutSeconds: 0 // Disable periodic standby status as well
+  }
+});
+
+service.on('data', async (lsn: string, log: Wal2Json.Output) => {
+  try {
+    // Process the change
+    await processChange(log);
+
+    // Manually acknowledge only after successful processing.
+    // PostgreSQL will not advance the replication slot until this is called.
+    await service.acknowledge(lsn);
+  } catch (err) {
+    // If you don't acknowledge, PostgreSQL will re-send this change on reconnect.
+    console.error('Failed to process, skipping ack:', err);
+  }
+});
+```
+
+> **Note:** When `auto: false`, the `timeoutSeconds` timer has no effect — it will not send any standby status automatically. Set `timeoutSeconds: 0` to make this explicit.
+
 ### 3-4. Flow Control (Backpressure)
 
 When processing messages takes longer than the rate at which PostgreSQL sends them, the internal buffer can grow
