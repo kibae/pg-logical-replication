@@ -66,6 +66,5 @@ describe('acknowledge', () => {
     expect(inserted).toBe(20);
 
     await service.stop();
-    service.removeAllListeners();
   });
 });
