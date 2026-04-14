@@ -28,7 +28,6 @@ describe('acknowledge', () => {
 
     let inserted = 0;
     service.on('data', (lsn: string, log: Wal2Json.Output) => {
-      console.log(lsn, log);
       inserted += log.change.filter((change) => change.kind === 'insert').length;
     });
 

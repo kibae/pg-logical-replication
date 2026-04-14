@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest --maxWorkers=1",
+    "test": "jest --maxWorkers=1 --forceExit",
     "test:watch": "jest --watch",
     "build": "rm -rf dist/* ; tsc -p tsconfig.build.json"
   },
