@@ -138,11 +138,6 @@ const service = new LogicalReplicationService({
        * Acknowledge is performed every set time (sec). If 0, do not do it.
        * Default: 10
        */
-      /**
-       * Periodically send standby status (heartbeat) to PostgreSQL and acknowledge WAL progress.
-       * Only takes effect when auto is true. If 0, do not send periodic acknowledgements.
-       * Default: 10
-       */
       timeoutSeconds: 0 | 10 | number;
     };
     flowControl?: {

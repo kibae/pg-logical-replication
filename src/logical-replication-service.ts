@@ -234,7 +234,6 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         if (this._stop) return;
 
         if (
-          this.config.acknowledge!.auto &&
           this._lastLsn &&
           Date.now() - this.lastStandbyStatusUpdatedTime > this.config.acknowledge!.timeoutSeconds * 1000
         )
