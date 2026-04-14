@@ -11,6 +11,15 @@ const [slotName, decoderName] = ['slot_test_decoding', 'test_decoding'];
 
 let client: TestClient;
 describe('test_decoding', () => {
+  let service: LogicalReplicationService | null = null;
+
+  afterEach(async () => {
+    if (service) {
+      await service.destroy();
+      service = null;
+    }
+  });
+
   beforeAll(async () => {
     client = await TestClient.New(slotName, decoderName);
   });
@@ -20,7 +29,7 @@ describe('test_decoding', () => {
   });
 
   it('Insert, Delete(w/FK)', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new TestDecodingPlugin({});
 
     let inserted = 0;
@@ -81,11 +90,10 @@ describe('test_decoding', () => {
     // users 5 rows + user_contents 5 rows
     expect(deleted).toBe(10);
 
-    await service.destroy();
   });
 
   it('Update', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new TestDecodingPlugin({});
 
     let rowCount = 0;
@@ -117,6 +125,5 @@ describe('test_decoding', () => {
     await sleep(1000);
 
     expect(rowCount).toBe(10);
-    await service.destroy();
   });
 });

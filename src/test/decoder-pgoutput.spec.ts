@@ -12,6 +12,15 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let client: TestClient;
 
 describe('pgoutput', () => {
+  let service: LogicalReplicationService | null = null;
+
+  afterEach(async () => {
+    if (service) {
+      await service.destroy();
+      service = null;
+    }
+  });
+
   beforeAll(async () => {
     client = await TestClient.New(slotName, decoderName);
     await client.query(
@@ -36,7 +45,7 @@ describe('pgoutput', () => {
   });
 
   it('Insert, Delete(w/FK)', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
     const messages: Pgoutput.Message[] = [];
 
@@ -164,11 +173,10 @@ describe('pgoutput', () => {
       old: null,
     });
 
-    await service.destroy();
   });
 
   it('Update', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
     const messages: Pgoutput.Message[] = [];
 
@@ -222,11 +230,10 @@ describe('pgoutput', () => {
       },
     });
 
-    await service.destroy();
   });
 
   it('Rollback', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
     const messages: Pgoutput.Message[] = [];
 
@@ -264,11 +271,10 @@ describe('pgoutput', () => {
     await sleep(100);
     expect(messages.filter((msg) => msg.tag === 'insert').length).toBe(10);
 
-    await service.destroy();
   });
 
   it('Message', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName], messages: true });
     const messages: Pgoutput.Message[] = [];
 
@@ -313,11 +319,10 @@ describe('pgoutput', () => {
       transactional: true,
     });
 
-    await service.destroy();
   });
 
   it('Huge transaction', async () => {
-    const service = new LogicalReplicationService(TestClientConfig);
+    service = new LogicalReplicationService(TestClientConfig);
     const plugin = new PgoutputPlugin({ protoVersion: 1, publicationNames: [publicationName] });
 
     let rowCount = 0;
@@ -365,6 +370,5 @@ describe('pgoutput', () => {
     expect(rowCount).toBe(count);
     expect(heartbeatCb).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Boolean));
 
-    await service.destroy();
   });
 });
