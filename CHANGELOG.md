@@ -8,6 +8,7 @@
   - Use `destroy()` when done with the service entirely; use `stop()` when re-subscription is needed
 
 ### Bug Fixes
+- Fix `acknowledge.timeoutSeconds` timer ignoring `auto: false` — standby status was being sent even when `auto` was `false`, which caused unintended WAL flush and broke manual-acknowledge workflows
 - Fix compatibility with TypeScript 6.0
   - Add explicit `rootDir` to `tsconfig.build.json` and `tsconfig.json` (TS5011)
   - Replace deprecated `module` keyword with `namespace` in output type declarations (TS1540)
