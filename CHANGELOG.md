@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Add `destroy()` method to `LogicalReplicationService` for clean full shutdown
+  - Calls `stop()` then `removeAllListeners()` to release all resources
+  - Use `destroy()` when done with the service entirely; use `stop()` when re-subscription is needed
+
+### Bug Fixes
+- Fix compatibility with TypeScript 6.0
+  - Add explicit `rootDir` to `tsconfig.build.json` and `tsconfig.json` (TS5011)
+  - Replace deprecated `module` keyword with `namespace` in output type declarations (TS1540)
+- Fix `acknowledge` test: use `timeoutSeconds: 0` to prevent standby status timer from auto-acknowledging LSN before replay test
+
 ## v2.3.0 (2026-03-10)
 
 ### Features

@@ -210,6 +210,10 @@ service.on('data', async (lsn: string, log: Pgoutput.Message) => {
 
 - `stop(): Promise<this>`
     - Terminate the server's connection and stop replication.
+    - Event listeners registered on the service are **preserved**, so you can re-subscribe and receive events again.
+- `destroy(): Promise<this>`
+    - Calls `stop()` and then removes all event listeners via `removeAllListeners()`.
+    - Use this when you are done with the service entirely and want to ensure clean shutdown (e.g. at the end of a test or application lifecycle).
 - `isStop(): boolean`
     - Returns false when replication starts from the server.
 - `lastLsn(): string`
