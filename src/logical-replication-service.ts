@@ -102,11 +102,14 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     this._messageQueue = [];
     this._processing = false;
 
+    // End the client before removing listeners so the subscribe() promise
+    // can resolve/reject properly when the connection closes.
+    await this._client?.end();
+
     this._connection?.removeAllListeners();
     this._connection = null;
 
     this._client?.removeAllListeners();
-    await this._client?.end();
     this._client = null;
 
     this.checkStandbyStatus(false);
@@ -170,7 +173,10 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         this._lastLsn = lsn;
       });
 
-      return plugin.start(client, slotName, this._lastLsn || '0/00000000');
+      return plugin.start(client, slotName, this._lastLsn || '0/00000000').catch(e => {
+        if (!this._stop || !/Connection\s+terminated/i.test(e?.toString()))
+          throw e;
+      });
     } catch (e) {
       await this.stop();
       this.emit('error', e);
