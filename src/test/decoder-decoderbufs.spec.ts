@@ -45,9 +45,12 @@ describe('decoderbufs', () => {
     });
 
     (function proc() {
+      if (!service) return;
       service.subscribe(plugin, slotName).catch((e) => {
-        console.error(e);
-        setTimeout(proc, 100);
+        if (service && !service.isStop()) {
+          console.error(e);
+          setTimeout(proc, 100);
+        }
       });
     })();
 
@@ -107,9 +110,12 @@ describe('decoderbufs', () => {
     });
 
     (function proc() {
+      if (!service) return;
       service.subscribe(plugin, slotName).catch((e) => {
-        console.error(e);
-        setTimeout(proc, 100);
+        if (service && !service.isStop()) {
+          console.error(e);
+          setTimeout(proc, 100);
+        }
       });
     })();
 
