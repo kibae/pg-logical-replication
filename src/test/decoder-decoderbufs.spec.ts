@@ -46,8 +46,10 @@ describe('decoderbufs', () => {
 
     (function proc() {
       service.subscribe(plugin, slotName).catch((e) => {
-        console.error(e);
-        setTimeout(proc, 100);
+        if (!service?.isStop()) {
+          console.error(e);
+          setTimeout(proc, 100);
+        }
       });
     })();
 
@@ -108,8 +110,10 @@ describe('decoderbufs', () => {
 
     (function proc() {
       service.subscribe(plugin, slotName).catch((e) => {
-        console.error(e);
-        setTimeout(proc, 100);
+        if (!service?.isStop()) {
+          console.error(e);
+          setTimeout(proc, 100);
+        }
       });
     })();
 
