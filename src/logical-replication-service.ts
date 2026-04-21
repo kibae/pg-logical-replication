@@ -202,7 +202,9 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
           } else {
             // Original behavior: emit immediately
             this.emit('data', lsn, plugin.parse(buffer.subarray(25)));
-            this._acknowledge(lsn);
+            this._acknowledge(lsn).catch((error) => {
+              this.emit('error', error);
+            });
           }
         } else if (buffer[0] == 0x6b) {
           // Primary keepalive message
@@ -278,7 +280,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
       this.checkStandbyStatusTimer = null;
     }
     if (this.config.keepaliveIntervalSeconds > 0 && enable)
-      this.checkStandbyStatusTimer = setInterval(async () => {
+      this.checkStandbyStatusTimer = setInterval(() => {
         if (this._stop) return;
 
         if (
@@ -288,7 +290,11 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
           // Keepalive only — never advances the slot past manually acked LSN.
           // The received position may be ahead; the flush/apply position stays
           // at _lastAckedLsn so the server does not discard unacked WAL.
-          await this.sendStandbyStatus(this._lastReceivedLsn ?? this._lastAckedLsn, this._lastAckedLsn, false);
+          this.sendStandbyStatus(this._lastReceivedLsn ?? this._lastAckedLsn, this._lastAckedLsn, false).catch(
+            (error) => {
+              this.emit('error', error);
+            }
+          );
         }
       }, 1000);
   }
