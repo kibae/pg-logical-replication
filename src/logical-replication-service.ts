@@ -176,23 +176,20 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         this._lastLsn = lsn;
       });
 
-      // Race plugin.start() against a stop() signal so that calling stop()
-      // causes subscribe() to resolve gracefully instead of hanging.
-      const STOP_SIGNAL = Symbol('stop');
-      const result = await Promise.race([
-        plugin.start(client, slotName, this._lastLsn || '0/00000000').then(() => null).catch((e) => e),
-        new Promise<symbol>((resolve) => { this._stopResolve = () => resolve(STOP_SIGNAL); }),
-      ]);
+      // Wrap plugin.start() with a stop signal so that stop() causes
+      // subscribe() to resolve gracefully instead of hanging forever.
+      await new Promise<void>((resolve, reject) => {
+        // Allow stop() to resolve this promise cleanly
+        this._stopResolve = resolve;
 
-      // If stop() was called, resolve gracefully
-      if (result === STOP_SIGNAL) return this;
-
-      // If plugin.start() threw an error, propagate it
-      if (result instanceof Error) {
-        await this.stop();
-        this.emit('error', result);
-        throw result;
-      }
+        plugin.start(client, slotName, this._lastLsn || '0/00000000')
+          .then(resolve)
+          .catch((e) => {
+            // If stop() was already called, ignore the connection-close error
+            if (this._stop) resolve();
+            else reject(e);
+          });
+      });
 
       return this;
     } catch (e) {
