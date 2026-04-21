@@ -42,10 +42,8 @@ describe('test_decoding', () => {
 
     (function proc() {
       service.subscribe(plugin, slotName).catch((e) => {
-        if (service && !service.isStop()) {
-          console.error(e);
-          setTimeout(proc, 100);
-        }
+        console.error(e);
+        setTimeout(proc, 100);
       });
     })();
 
@@ -106,10 +104,8 @@ describe('test_decoding', () => {
 
     (function proc() {
       service.subscribe(plugin, slotName).catch((e) => {
-        if (service && !service.isStop()) {
-          console.error(e);
-          setTimeout(proc, 100);
-        }
+        console.error(e);
+        setTimeout(proc, 100);
       });
     })();
 

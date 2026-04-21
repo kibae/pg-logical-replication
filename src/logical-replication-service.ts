@@ -94,9 +94,11 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
   // Flow control (backpressure) queue
   private _messageQueue: Array<{ lsn: string; data: any }> = [];
   private _processing: boolean = false;
+  private _intentionalStop: boolean = false;
 
   public async stop(): Promise<this> {
     this._stop = true;
+    this._intentionalStop = true;
 
     // Clear flow control queue
     this._messageQueue = [];
@@ -113,6 +115,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     this._client = null;
 
     this.checkStandbyStatus(false);
+    this._intentionalStop = false;
 
     return this;
   }
@@ -132,6 +135,7 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
    * @param uptoLsn
    */
   async subscribe(plugin: AbstractPlugin, slotName: string, uptoLsn?: string): Promise<this> {
+    this._intentionalStop = false;
     try {
       const [client, connection] = await this.client();
       this._lastLsn = uptoLsn || this._lastLsn;
@@ -173,7 +177,16 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
         this._lastLsn = lsn;
       });
 
-      return plugin.start(client, slotName, this._lastLsn || '0/00000000');
+      try {
+        await plugin.start(client, slotName, this._lastLsn || '0/00000000');
+      } catch (e) {
+        // If stop() was called intentionally, resolve gracefully instead of throwing
+        if (this._intentionalStop) return this;
+        await this.stop();
+        this.emit('error', e);
+        throw e;
+      }
+      return this;
     } catch (e) {
       await this.stop();
       this.emit('error', e);
