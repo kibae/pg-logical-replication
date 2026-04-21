@@ -178,10 +178,22 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
 
       // Race plugin.start() against a stop() signal so that calling stop()
       // causes subscribe() to resolve gracefully instead of hanging.
-      await Promise.race([
-        plugin.start(client, slotName, this._lastLsn || '0/00000000'),
-        new Promise<void>((resolve) => { this._stopResolve = resolve; }),
+      const STOP_SIGNAL = Symbol('stop');
+      const result = await Promise.race([
+        plugin.start(client, slotName, this._lastLsn || '0/00000000').then(() => null).catch((e) => e),
+        new Promise<symbol>((resolve) => { this._stopResolve = () => resolve(STOP_SIGNAL); }),
       ]);
+
+      // If stop() was called, resolve gracefully
+      if (result === STOP_SIGNAL) return this;
+
+      // If plugin.start() threw an error, propagate it
+      if (result instanceof Error) {
+        await this.stop();
+        this.emit('error', result);
+        throw result;
+      }
+
       return this;
     } catch (e) {
       await this.stop();
