@@ -1,5 +1,34 @@
 # Changelog
 
+## v3.0.1 (2026-04-22)
+
+### Breaking Changes
+- Replace nested `acknowledge: { auto, timeoutSeconds }` with top-level `autoAck` and `keepaliveIntervalSeconds`
+  - The old shape conflated two independent concerns (auto-ack on data messages vs. periodic keepalive), which silently advanced the replication slot when `auto: false` was set — see #174
+  - The deprecated `acknowledge` key is still accepted for one major version and mapped to the new keys with a `console.warn`; it will be removed in 4.0
+
+### Bug Fixes
+- The periodic keepalive timer no longer silently advances `confirmed_flush_lsn` when `autoAck: false`
+  - Received LSN and acknowledged LSN are now tracked separately internally
+  - The keepalive continues to run (so `wal_sender_timeout` does not drop the connection) but only reports the manually acknowledged position as flushed/applied
+
+### Migration
+
+Before (v2.x):
+```ts
+new LogicalReplicationService(clientConfig, {
+  acknowledge: { auto: false, timeoutSeconds: 10 },
+});
+```
+
+After (v3.0.1):
+```ts
+new LogicalReplicationService(clientConfig, {
+  autoAck: false,
+  keepaliveIntervalSeconds: 10,
+});
+```
+
 ## v2.4.0 (2026-04-15)
 
 ### Features

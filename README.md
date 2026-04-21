@@ -1,5 +1,24 @@
 # pg-logical-replication
 
+> ### ⚠️ Breaking Change in v3.0.1 — `acknowledge` config replaced
+>
+> The nested `acknowledge: { auto, timeoutSeconds }` option has been split into two top-level keys:
+> `autoAck` and `keepaliveIntervalSeconds`. The old shape silently advanced the replication slot
+> when `auto: false` was set ([#174](https://github.com/kibae/pg-logical-replication/issues/174)).
+>
+> ```diff
+> - new LogicalReplicationService(clientConfig, {
+> -   acknowledge: { auto: false, timeoutSeconds: 10 },
+> - });
+> + new LogicalReplicationService(clientConfig, {
+> +   autoAck: false,
+> +   keepaliveIntervalSeconds: 10,
+> + });
+> ```
+>
+> The old `acknowledge` key is still accepted in v3.x with a deprecation warning and will be
+> removed in v4.0. See the [CHANGELOG](./CHANGELOG.md#v301-2026-04-22) for full details.
+
 - [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html) client for node.js(
   `>=16.9.0`)
 - Supported plugins
@@ -54,10 +73,8 @@ const service = new LogicalReplicationService(
    * https://github.com/kibae/pg-logical-replication/blob/main/src/logical-replication-service.ts#L9
    */
   {
-    acknowledge: {
-      auto: true,
-      timeoutSeconds: 10
-    }
+    autoAck: true,
+    keepaliveIntervalSeconds: 10
   }
 )
 
@@ -127,20 +144,21 @@ const service = new LogicalReplicationService({
    * Logical replication service config
    * https://github.com/kibae/pg-logical-replication/blob/main/src/logical-replication-service.ts#L9
    */
-  config? : Partial<{
-    acknowledge?: {
-      /**
-       * If the value is false, acknowledge must be done manually.
-       * Default: true
-       */
-      auto: boolean;
-      /**
-       * Periodically sends standby status (keepalive) to PostgreSQL.
-       * When auto is true, also advances the WAL flush position.
-       * Set to 0 to disable. Default: 10
-       */
-      timeoutSeconds: 0 | 10 | number;
-    };
+  config? : {
+    /**
+     * Send ack after every data message (advances the slot automatically).
+     * If false, the caller must invoke `acknowledge()` manually.
+     * Default: true
+     */
+    autoAck?: boolean;
+    /**
+     * Keepalive interval (seconds) for the periodic standby status update.
+     * Works independently of `autoAck`: when autoAck is false, the keepalive
+     * keeps the connection alive but does NOT advance the flush position past
+     * the last manually acknowledged LSN. Set to 0 to disable.
+     * Default: 10
+     */
+    keepaliveIntervalSeconds?: number;
     flowControl?: {
       /**
        * If true, pause the stream until the data handler completes.
@@ -149,7 +167,11 @@ const service = new LogicalReplicationService({
        */
       enabled: boolean;
     };
-  }>
+    /**
+     * @deprecated Use `autoAck` / `keepaliveIntervalSeconds`. Will be removed in 4.0.
+     */
+    acknowledge?: { auto?: boolean; timeoutSeconds?: number };
+  }
 })
 ```
 
@@ -166,16 +188,14 @@ const service = new LogicalReplicationService({
 
 - After processing the data, it signals the PostgreSQL server that it is OK to clear the WAL log.
 - Usually this is done **automatically**.
-- Manually use only when `new LogicalReplicationService({}, {acknowledge: {auto: false}})`.
+- Manually use only when `new LogicalReplicationService({}, { autoAck: false })`.
 
 **Manual acknowledge example:**
 
 ```typescript
 const service = new LogicalReplicationService(clientConfig, {
-  acknowledge: {
-    auto: false,      // Disable automatic acknowledgement
-    timeoutSeconds: 0 // Disable periodic standby status as well
-  }
+  autoAck: false,               // Disable automatic acknowledgement
+  keepaliveIntervalSeconds: 10  // Keep the connection alive; does NOT advance the slot
 });
 
 service.on('data', async (lsn: string, log: Wal2Json.Output) => {
@@ -193,7 +213,7 @@ service.on('data', async (lsn: string, log: Wal2Json.Output) => {
 });
 ```
 
-> **Note:** When `auto: false`, `timeoutSeconds` still sends periodic standby status (keepalive) to PostgreSQL to maintain the connection, but does **not** advance the WAL flush position. Set `timeoutSeconds: 0` to disable keepalive entirely.
+> **Note:** When `autoAck: false`, the `keepaliveIntervalSeconds` timer still sends periodic standby status to PostgreSQL to keep the connection alive, but it reports only the last **manually acknowledged** LSN as the flush position — so the replication slot never silently advances past unacknowledged work. Set `keepaliveIntervalSeconds: 0` to disable the keepalive entirely.
 
 ### 3-4. Flow Control (Backpressure)
 
@@ -202,7 +222,8 @@ indefinitely, leading to memory issues (OOM). The `flowControl` option enables b
 
 ```typescript
 const service = new LogicalReplicationService(clientConfig, {
-  acknowledge: { auto: true, timeoutSeconds: 10 },
+  autoAck: true,
+  keepaliveIntervalSeconds: 10,
   flowControl: { enabled: true }  // Enable backpressure support
 });
 
