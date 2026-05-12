@@ -125,7 +125,10 @@ export default {
             },
             "op": {
               "type": "Op",
-              "id": 4
+              "id": 4,
+              "options": {
+                "default": "INSERT"
+              }
             },
             "newTuple": {
               "rule": "repeated",
