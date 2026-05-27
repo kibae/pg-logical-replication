@@ -29,9 +29,10 @@ describe('acknowledge', () => {
     }
   });
 
-  it('Resume streaming using the internal _lastLsn value', async () => {
+  it('Resume streaming using the internal last-received LSN value', async () => {
     service = new LogicalReplicationService(TestClientConfig, {
-      acknowledge: { auto: false, timeoutSeconds: 0 },
+      autoAck: false,
+      keepaliveIntervalSeconds: 0,
     });
     const plugin = new Wal2JsonPlugin({});
 
