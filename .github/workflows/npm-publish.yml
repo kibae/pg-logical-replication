@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: github action
 
+    permissions:
+      id-token: write # required for npm Trusted Publishing (OIDC)
+      contents: write # required to push the version tag and create the release
+
     services:
       postgres:
         image: kibaes/postgres-logical-replication-dev:17
@@ -31,6 +35,10 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Update npm
+        # Trusted Publishing (OIDC) requires npm >= 11.5.1
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: npm ci
 
@@ -47,9 +55,8 @@ jobs:
         run: npm run build
 
       - name: Publish to NPM
+        # Authentication via OIDC Trusted Publishing; provenance is attached automatically.
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create tag
         run: |
