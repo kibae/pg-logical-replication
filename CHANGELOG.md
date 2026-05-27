@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.5.0 (2026-05-27)
+
+### Features
+- Add Node.js 26 support
+  - CI test matrix now runs on Node.js 20, 22, 24, 26 across PostgreSQL 14–18
+
+### Breaking Changes
+- Drop support for EOL Node.js 16 and 18; minimum supported version is now Node.js `>=20.0.0`
+  - `engines.node` bumped from `>=16.9.0` to `>=20.0.0`
+
+### CI
+- Bump `actions/setup-node` from v3 to v4 for reliable resolution of the latest Node.js releases
+
 ## v2.4.0 (2026-04-15)
 
 ### Features
