@@ -14,13 +14,13 @@
 [![NPM Version](https://badge.fury.io/js/pg-logical-replication.svg)](https://www.npmjs.com/package/pg-logical-replication)
 [![License](https://img.shields.io/github/license/kibae/pg-logical-replication)](https://github.com/kibae/pg-logical-replication/blob/main/LICENSE)
 
-| PostgreSQL Versions | on Node.js 20, 22, 24, 26                                                                                                                                                                                                        |
+| PostgreSQL Versions | on Node.js 22, 24, 26                                                                                                                                                                                                        |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PostgreSQL 14       | [![Node.js(20, 22, 24, 26) w/Postgres 14](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql14.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql14.yml) |
-| PostgreSQL 15       | [![Node.js(20, 22, 24, 26) w/Postgres 15](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql15.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql15.yml) |
-| PostgreSQL 16       | [![Node.js(20, 22, 24, 26) w/Postgres 16](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql16.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql16.yml) |
-| PostgreSQL 17       | [![Node.js(20, 22, 24, 26) w/Postgres 17](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql17.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql17.yml) |
-| PostgreSQL 18       | [![Node.js(20, 22, 24, 26) w/Postgres 18](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql18.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql18.yml) |
+| PostgreSQL 14       | [![Node.js(22, 24, 26) w/Postgres 14](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql14.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql14.yml) |
+| PostgreSQL 15       | [![Node.js(22, 24, 26) w/Postgres 15](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql15.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql15.yml) |
+| PostgreSQL 16       | [![Node.js(22, 24, 26) w/Postgres 16](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql16.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql16.yml) |
+| PostgreSQL 17       | [![Node.js(22, 24, 26) w/Postgres 17](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql17.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql17.yml) |
+| PostgreSQL 18       | [![Node.js(22, 24, 26) w/Postgres 18](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql18.yml/badge.svg)](https://github.com/kibae/pg-logical-replication/actions/workflows/nodejs-pgsql18.yml) |
 
 ## 1. Install
 
