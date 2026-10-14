@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest --maxWorkers=1",
+    "test": "npm run typecheck && jest --maxWorkers=1",
     "test:watch": "jest --watch",
-    "build": "rm -rf dist/* ; tsc -p tsconfig.build.json"
+    "build": "rm -rf dist/* ; tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "keywords": [
     "postgres",
@@ -77,6 +78,8 @@
     "*.md"
   ],
   "devDependencies": {
+    "@swc/core": "^1.16.18",
+    "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.0",
     "@types/pg": "^8.6.5",
@@ -84,8 +87,6 @@
     "jest-junit": "^17.0.0",
     "prettier": "^3.4.2",
     "protobufjs": "^8.0.0",
-    "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2",
     "typescript": "^7.0.2"
   },
   "dependencies": {
@@ -94,6 +95,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   }
 }
