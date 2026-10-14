@@ -3,7 +3,15 @@ module.exports = {
   rootDir: '.',
   testRegex: '.*\\.spec\\.ts$',
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    '^.+\\.(t|j)s$': [
+      '@swc/jest',
+      {
+        jsc: {
+          parser: { syntax: 'typescript' },
+          target: 'es2022',
+        },
+      },
+    ],
   },
   collectCoverageFrom: ['**/*.(t|j)s'],
   testEnvironment: 'node',

@@ -1,7 +1,7 @@
 # pg-logical-replication
 
 - [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html) client for node.js(
-  `>=20.0.0`)
+  `>=22.0.0`)
 - Supported plugins
     - [pgoutput](https://www.postgresql.org/docs/current/protocol-logicalrep-message-formats.html) (Native to
       PostgreSQL, Recommended)
