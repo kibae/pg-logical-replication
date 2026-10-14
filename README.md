@@ -165,6 +165,7 @@ const service = new LogicalReplicationService({
 ### 3-3. `acknowledge(lsn: string): Promise<boolean>`
 
 - After processing the data, it signals the PostgreSQL server that it is OK to clear the WAL log.
+- `lsn` is the exclusive end position of durably processed WAL. It is sent unchanged in the written, flushed, and applied fields of the standby status update.
 - Usually this is done **automatically**.
 - Manually use only when `new LogicalReplicationService({}, {acknowledge: {auto: false}})`.
 
