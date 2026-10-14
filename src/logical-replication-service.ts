@@ -256,20 +256,15 @@ export class LogicalReplicationService extends EventEmitter2 implements LogicalR
     this.lastStandbyStatusUpdatedTime = Date.now();
 
     const slice = lsn.split('/');
-    let [upperWAL, lowerWAL]: [number, number] = [parseInt(slice[0], 16), parseInt(slice[1], 16)];
+    const [upperWAL, lowerWAL]: [number, number] = [parseInt(slice[0], 16), parseInt(slice[1], 16)];
 
     // Timestamp as microseconds since midnight 2000-01-01
     const now = Date.now() - 946080000000;
     const upperTimestamp = Math.floor(now / 4294967.296);
     const lowerTimestamp = Math.floor(now - upperTimestamp * 4294967.296);
 
-    if (lowerWAL === 4294967295) {
-      // [0xff, 0xff, 0xff, 0xff]
-      upperWAL = upperWAL + 1;
-      lowerWAL = 0;
-    } else {
-      lowerWAL = lowerWAL + 1;
-    }
+    // Keepalive and pgoutput commit LSNs already identify the exclusive end of WAL.
+    // Adding one can acknowledge unwritten WAL and prevent failover slot synchronization.
 
     const response = Buffer.alloc(34);
     response.fill(0x72); // 'r'
