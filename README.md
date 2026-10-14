@@ -31,6 +31,13 @@
 $ npm install pg-logical-replication
 ```
 
+### Upgrading to 2.6.0
+
+- Upgrade to Node.js 22 or later before installing 2.6.0.
+- `acknowledge(lsn)` now sends the supplied position unchanged. Pass the exclusive end of durably processed WAL and remove any `-1` compensation for the previous behavior.
+- For transaction-end checkpoints, use pgoutput's `commitEndLsn` or wal2json's `nextlsn` (enable `includeLsn: true`). The LSN passed to a wal2json `data` handler is not necessarily the transaction end.
+- Method signatures and replication configuration options remain unchanged. See the [changelog](CHANGELOG.md) for details.
+
 ## 2. Usage
 
 - This is an example using `wal2json`. A replication slot(`test_slot_wal2json`) must be created on the PostgreSQL

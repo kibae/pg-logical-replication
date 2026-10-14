@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.6.0 (Unreleased)
+
+### Breaking Changes
+- Require Node.js `>=22.0.0`; Node.js 20 is no longer supported (#218).
+- `acknowledge(lsn)` now sends the supplied LSN unchanged instead of adding one byte (#222).
+  - Pass the exclusive end position of durably processed WAL. Remove any `-1` workaround previously used to compensate for the increment.
+  - For transaction-end checkpoints, use pgoutput's `commitEndLsn`, or wal2json's `nextlsn` with `includeLsn: true`. A wal2json data event's LSN is not necessarily the transaction end.
+  - Method signatures and replication configuration options remain unchanged.
+
+### Bug Fixes
+- Stop acknowledging one byte beyond the supplied WAL end, addressing the off-by-one position reported during PostgreSQL failover slot synchronization (#222).
+
+### Build and CI
+- Upgrade to TypeScript 7 and replace `ts-jest` with `@swc/jest`; `npm test` runs TypeScript checking before Jest (#218).
+- Update locked dependencies, including pg, Jest, protobufjs, and type definitions.
+- Wait for PostgreSQL readiness before running tests and test Node.js 22, 24, and 26 across PostgreSQL 14–18 (#223).
+- Skip publishing test-report checks for fork PRs whose token cannot write checks; their tests still run (#224).
+
+### Validation
+- Add wire-encoding regression tests and manual ACK checkpoint/reconnect integration tests for wal2json and pgoutput (#222).
+- All 31 tests pass across the 15 PostgreSQL/Node.js CI combinations. Coverage includes upgrading existing checkpoints and callers using a `-1` workaround.
+- Live primary/standby failover remains unverified by this test suite.
+
 ## v2.5.0 (2026-05-27)
 
 ### Features
