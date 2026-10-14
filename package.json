@@ -1,6 +1,6 @@
 {
   "name": "pg-logical-replication",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "PostgreSQL Location Replication client - logical WAL replication streaming",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -71,6 +71,11 @@
     {
       "name": "Cristian I.",
       "url": "https://github.com/iantocristian"
+    },
+    {
+      "name": "Chris Savvopoulos",
+      "email": "chris@green-triangle.com",
+      "url": "https://github.com/savv"
     }
   ],
   "files": [
