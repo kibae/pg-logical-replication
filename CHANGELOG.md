@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.0.0 (Unreleased)
+## v2.6.0 (Unreleased)
 
 ### Breaking Changes
 - Require Node.js `>=22.0.0`; Node.js 20 is no longer supported (#218).

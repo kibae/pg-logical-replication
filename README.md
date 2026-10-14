@@ -31,9 +31,9 @@
 $ npm install pg-logical-replication
 ```
 
-### Upgrading from 2.x to 3.x
+### Upgrading to 2.6.0
 
-- Upgrade to Node.js 22 or later before installing 3.x.
+- Upgrade to Node.js 22 or later before installing 2.6.0.
 - `acknowledge(lsn)` now sends the supplied position unchanged. Pass the exclusive end of durably processed WAL and remove any `-1` compensation for the previous behavior.
 - For transaction-end checkpoints, use pgoutput's `commitEndLsn` or wal2json's `nextlsn` (enable `includeLsn: true`). The LSN passed to a wal2json `data` handler is not necessarily the transaction end.
 - Method signatures and replication configuration options remain unchanged. See the [changelog](CHANGELOG.md) for details.
