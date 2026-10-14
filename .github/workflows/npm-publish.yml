@@ -24,6 +24,12 @@ jobs:
           POSTGRES_DB: playground
         ports:
           - "5432:5432"
+        # Use TCP so the temporary initdb server cannot pass the readiness check.
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d playground"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
 
     steps:
       - name: Checkout code
@@ -32,7 +38,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Update npm

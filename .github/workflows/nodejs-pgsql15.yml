@@ -1,7 +1,7 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js(20,22,24,26) w/Postgres 15
+name: Node.js(22,24,26) w/Postgres 15
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20, 22, 24, 26]
+        node-version: [22, 24, 26]
 
     services:
       postgres:
@@ -31,6 +31,12 @@ jobs:
           POSTGRES_DB: playground
         ports:
           - "5432:5432"
+        # Use TCP so the temporary initdb server cannot pass the readiness check.
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d playground"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
 
     steps:
     - uses: actions/checkout@v4
