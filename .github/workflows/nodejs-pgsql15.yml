@@ -57,7 +57,11 @@ jobs:
     - name: Test
       run: npm test
     - uses: phoenix-actions/test-reporting@v8
-      if: success() || failure()
+      # Fork PR tokens cannot create checks; the Test step still determines the result.
+      if: >-
+        (success() || failure()) &&
+        (github.event_name != 'pull_request' ||
+         github.event.pull_request.head.repo.full_name == github.repository)
       id: test-report
       with:
         name: JEST Tests (${{ matrix.node-version }}, Postgres 15)
